@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27703.2026
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ResXSemanticParser", "ResXSemanticParser\ResXSemanticParser.csproj", "{4E9E944D-118E-4D86-9B56-2B0B878A62B8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Parser", "Parser\Parser.csproj", "{4E9E944D-118E-4D86-9B56-2B0B878A62B8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{458E024E-56AD-4971-9E12-5ACB007E05D9}"
 EndProject
