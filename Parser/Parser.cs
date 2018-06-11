@@ -1,35 +1,31 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
-using System.Text;
 using System.Xml;
 using System.Xml.Linq;
+
+using ResXSemanticParser.Yaml;
+
+using File = System.IO.File;
 
 namespace ResXSemanticParser
 {
     public static class Parser
     {
-        private const string TYPE_FILE = "file"; // must be fine
-        private const string TYPE_ROOT = "root"; // can be named anything
-        private const string TYPE_DATA = "data"; // can be named anything
-        private const string TYPE_RESHEADER = "resheader"; // can be named anything
-        private const string TYPE_VALUE = "value"; // can be named anything
-        private const string TYPE_COMMENT = "comment"; // can be named anything
-
-        private const int MARGIN_FILE = 3;
-        private const int MARGIN_ROOT = 3;
-        private const int MARGIN_DATA = 6;
-        private const int MARGIN_RESHEADER = 6;
-        private const int MARGIN_VALUE = 9;
-        private const int MARGIN_COMMENT = 9;
-
         private static readonly string _lineEnding = Environment.NewLine;
-
 
         public static bool TryParse(string path, out string yamlContent)
         {
-            var lines = File.ReadAllLines(path);
+            var parsingFine = TryParseFile(path, out Yaml.File file);
+            yamlContent = file.ToYamlString();
+            return parsingFine;
+        }
+
+        public static bool TryParseFile(string path, out Yaml.File yamlContent)
+        {
+            yamlContent = null;
+
             var allText = File.ReadAllText(path);
+            var lines = allText.Split(new[] {_lineEnding }, StringSplitOptions.None);
 
             XDocument document = null;
             var parsingErrors = string.Empty;
@@ -43,207 +39,231 @@ namespace ResXSemanticParser
             }
 
             var parsingFine = string.IsNullOrWhiteSpace(parsingErrors);
-
-            var builder = new StringBuilder();
-            YamlFile(builder, lines, path, !parsingFine);
-
             if (parsingFine)
             {
-                YamlRoot(builder, document, lines, allText);
-                YamlInfrastructureCommentAndSchema(builder, document, lines);
-                YamlResHeader(builder, document, lines);
-                YamlData(builder, document, lines);
+                var file = YamlFile(lines, path);
+
+                var root = YamlRoot(file, document, lines, allText);
+
+                // adjust footer
+                file.FooterSpan = new CharacterSpan(root.FooterSpan.End + 1, allText.Length - 1);
+
+                YamlInfrastructureCommentAndSchema(root, document, lines, allText);
+                YamlResHeader(root, document, lines);
+                YamlData(root, document, lines);
+                yamlContent = file;
             }
 
-            yamlContent = builder.ToString();
             return parsingFine;
         }
 
-        private static void YamlFile(StringBuilder builder, string[] lines, string fileName, bool parsingErrorsDetected)
+        private static Yaml.File YamlFile(string[] lines, string fileName)
         {
-            var contents = new[]
+            return new Yaml.File
+                       {
+                           Name = fileName,
+                           LocationSpan = new LocationSpan(new LineInfo(1, 0), new LineInfo(lines.Length, lines.Last().Length)),
+                           FooterSpan = new CharacterSpan(0, -1),
+                       };
+        }
+
+        private static LineInfo GetFirstLineInfo(string tag, string[] lines)
+        {
+            var lineNumber = 0;
+            var linePosition = -1;
+            foreach (var line in lines)
+            {
+                lineNumber++;
+
+                linePosition = line.IndexOf(tag, StringComparison.OrdinalIgnoreCase);
+                if (linePosition != -1)
+                {
+                    linePosition += tag.Length;
+                    break;
+                }
+            }
+
+            return new LineInfo(lineNumber, linePosition);
+        }
+
+        private static LineInfo GetLastLineInfo(string tag, string[] lines)
+        {
+            var lineNumber = 0;
+            var linePosition = -1;
+            foreach (var line in lines)
+            {
+                lineNumber++;
+
+                linePosition = line.LastIndexOf(tag, StringComparison.OrdinalIgnoreCase);
+                if (linePosition != -1)
+                {
+                    linePosition += tag.Length;
+                    break;
+                }
+            }
+
+            return new LineInfo(lineNumber, linePosition);
+        }
+
+        private static Container YamlRoot(Yaml.File file, XDocument document, string[] lines, string allText)
+        {
+            const string TAG = "root";
+            const string STARTTAG = "<"+ TAG + ">";
+            const string ENDTAG = "</"+ TAG + ">";
+
+            var root = document.Descendants(TAG).First();
+
+            var endLine = GetLastLineInfo(ENDTAG, lines);
+
+            var headerSpan = GetFirstCharacterSpan(STARTTAG, allText);
+            var footerSpan = GetLastCharacterSpan(ENDTAG, allText);
+
+            var yamlRoot = new Container
                                {
-                                   $"type: {TYPE_FILE}",
-                                   $"name: {fileName}",
-                                   YamlSpan("locationSpan", YamlSpan("start", 1, 0), YamlSpan("end", lines.Length + 1, lines.Last().Length)),
-                                   YamlSpan("footerSpan", 0, -1),
-                                   $"parsingErrorsDetected: {parsingErrorsDetected}",
-                                   "children:",
-                                   string.Empty,
+                                   Type = "root",
+                                   Name = "root",
+                                   LocationSpan = new LocationSpan(YamlStart(root), endLine),
+                                   HeaderSpan = headerSpan,
+                                   FooterSpan = footerSpan,
+
                                };
+            file.Children.Add(yamlRoot);
 
-            foreach (var content in contents)
-            {
-                WriteLine(MARGIN_FILE, builder, content);
-            }
+            return yamlRoot;
         }
 
-        private static void YamlRoot(StringBuilder builder, XDocument document, string[] lines, string allText)
+        private static CharacterSpan GetLastCharacterSpan(string tag, string allText)
         {
-            const string ENDTAG = "</root>";
-
-            foreach (var root in document.Descendants("root"))
+            var value = tag + _lineEnding;
+            var index = allText.LastIndexOf(value, StringComparison.OrdinalIgnoreCase);
+            if (index < 0)
             {
-                var lineCount = 0;
-                var linePosition = -1;
-                foreach (var line in lines)
-                {
-                    lineCount++;
-
-                    linePosition = line.LastIndexOf(ENDTAG, StringComparison.OrdinalIgnoreCase);
-                    if (linePosition != -1)
-                    {
-                        linePosition += ENDTAG.Length;
-                        break;
-                    }
-                }
-
-                var startPosition = GetCharacterPositionAtLineStart(root, lines);
-                var endPosition = allText.LastIndexOf(ENDTAG, StringComparison.OrdinalIgnoreCase) + ENDTAG.Length - 1;
-
-                var contents = new[]
-                                   {
-                                       $"- type: {TYPE_ROOT}",
-                                       "  name: root",
-                                       YamlSpan("  locationSpan", YamlStart(root), YamlEnd(lineCount, linePosition)),
-                                       YamlSpan("  span", startPosition, endPosition),
-                                       "  children:",
-                                       string.Empty,
-                                   };
-
-                foreach (var content in contents)
-                {
-                    WriteLine(MARGIN_ROOT, builder, content);
-                }
+                value = tag;
+                index = allText.LastIndexOf(value, StringComparison.OrdinalIgnoreCase);
             }
+
+            return new CharacterSpan(index, index + value.Length - 1);
         }
 
-        private static void YamlInfrastructureCommentAndSchema(StringBuilder builder, XDocument document, string[] lines)
+        private static CharacterSpan GetFirstCharacterSpan(string tag, string allText)
         {
+            var value = tag + _lineEnding;
+            var index = allText.IndexOf(value, StringComparison.OrdinalIgnoreCase);
+            if (index < 0)
+            {
+                value = tag;
+                index = allText.IndexOf(value, StringComparison.OrdinalIgnoreCase);
+            }
+
+            return new CharacterSpan(index, index + value.Length - 1);
         }
 
-        private static void YamlResHeader(StringBuilder builder, XDocument document, string[] lines)
+        private static void YamlInfrastructureCommentAndSchema(Container parent, XDocument document, string[] lines, string allText)
+        {
+            const string ENDTAG = "</xsd:schema>";
+
+            var startLine = GetFirstLineInfo("<!-- ", lines);
+            startLine = new LineInfo(startLine.LineNumber, 1); // we want to start at first
+
+            var endLine = GetLastLineInfo(ENDTAG, lines);
+            endLine = new LineInfo(endLine.LineNumber, endLine.LinePosition + _lineEnding.Length); // we want to include line breaks
+            var endTagSpan = GetLastCharacterSpan(ENDTAG, allText);
+
+            var node = new TerminalNode
+                           {
+                               Type = "schema",
+                               Name = "schema",
+                               LocationSpan = new LocationSpan(startLine, endLine),
+                               Span = new CharacterSpan(parent.HeaderSpan.End + 1, endTagSpan.End),
+                           };
+            parent.Children.Add(node);
+        }
+
+        private static void YamlResHeader(Container parent, XDocument document, string[] lines)
         {
             foreach (var header in document.Descendants("resheader"))
             {
-                var textAfterClosingTag = header.NodesAfterSelf().First();
+                var container = YamlContainer(lines, header);
 
-                var startPosition = GetCharacterPositionAtLineStart(header, lines);
-                var endPosition = GetCharacterPositionAtLineEnd(textAfterClosingTag, lines);
+                YamlValue(container, header, lines);
 
-                var contents = new[]
-                                   {
-                                       $"- type: {TYPE_RESHEADER}",
-                                       $"  name: {header.Attribute("name").Value}",
-                                       YamlSpan("  locationSpan", YamlStart(header), YamlEnd(textAfterClosingTag)),
-                                       YamlSpan("  span", startPosition, endPosition),
-                                       string.Empty,
-                                   };
-
-                foreach (var content in contents)
-                {
-                    WriteLine(MARGIN_RESHEADER, builder, content);
-                }
+                parent.Children.Add(container);
             }
         }
 
-            private static void YamlData(StringBuilder builder, XDocument document, string[] lines)
+        private static void YamlData(Container parent, XDocument document, string[] lines)
         {
             foreach (var data in document.Descendants("data"))
             {
-                var textAfterClosingTag = data.NodesAfterSelf().First();
-                var nodeAfterTag = data.Nodes().First();
+                var container = YamlContainer(lines, data);
 
-                var headerStartPosition = GetCharacterPositionAtLineStart(data, lines);
-                var headerEndPosition = GetCharacterPositionAtLineEnd(nodeAfterTag, lines);
+                YamlValue(container, data, lines);
+                YamlComment(container, data, lines);
 
-                var footerStartPosition = GetCharacterPositionAtLineStart(textAfterClosingTag, lines);
-                var footerEndPosition = GetCharacterPositionAtLineEnd(textAfterClosingTag, lines);
-
-                var contents = new[]
-                                   {
-                                       $"- type: {TYPE_DATA}",
-                                       $"  name: {data.Attribute("name").Value}",
-                                       YamlSpan("  locationSpan", YamlStart(data), YamlEnd(textAfterClosingTag)),
-                                       YamlSpan("  headerSpan", headerStartPosition, headerEndPosition),
-                                       YamlSpan("  footerSpan", footerStartPosition, footerEndPosition),
-                                       "  children:",
-                                       string.Empty,
-                                   };
-
-                foreach (var content in contents)
-                {
-                    WriteLine(MARGIN_DATA, builder, content);
-                }
-
-                YamlValue(builder, data, lines);
-                YamlComment(builder, data, lines);
+                parent.Children.Add(container);
             }
         }
 
-        private static void YamlValue(StringBuilder builder, XElement datas, string[] lines)
+        private static void YamlValue(Container container, XElement data, string[] lines)
         {
-            foreach (var value in datas.Descendants("value"))
+            foreach (var value in data.Descendants("value"))
             {
-                var textAfterClosingTag = value.NodesAfterSelf().First();
-
-                var startPosition = GetCharacterPositionAtLineStart(value, lines);
-                var endPosition = GetCharacterPositionAtLineEnd(textAfterClosingTag, lines);
-
-                var contents = new[]
-                                   {
-                                       $"- type: {TYPE_VALUE}",
-                                       "  name: value",
-                                       YamlSpan("  locationSpan", YamlStart(value), YamlEnd(textAfterClosingTag)),
-                                       YamlSpan("  span", startPosition, endPosition),
-                                       string.Empty,
-                                   };
-
-                foreach (var content in contents)
-                {
-                    WriteLine(MARGIN_VALUE, builder, content);
-                }
+                var valueNode = YamlTerminalNode(lines, value);
+                container.Children.Add(valueNode);
             }
         }
 
-        private static void YamlComment(StringBuilder builder, XElement datas, string[] lines)
+        private static void YamlComment(Container container, XElement data, string[] lines)
         {
-            foreach (var comment in datas.Descendants("comment"))
+            foreach (var comment in data.Descendants("comment"))
             {
-                var textAfterClosingTag = comment.NodesAfterSelf().First();
-
-                var startPosition = GetCharacterPositionAtLineStart(comment, lines);
-                var endPosition = GetCharacterPositionAtLineEnd(textAfterClosingTag, lines);
-
-                var contents = new[]
-                                   {
-                                       $"- type: {TYPE_COMMENT}",
-                                       "  name: comment",
-                                       YamlSpan("  locationSpan", YamlStart(comment), YamlEnd(textAfterClosingTag)),
-                                       YamlSpan("  span", startPosition, endPosition),
-                                       string.Empty,
-                                   };
-
-                foreach (var content in contents)
-                {
-                    WriteLine(MARGIN_COMMENT, builder, content);
-                }
+                var commentNode = YamlTerminalNode(lines, comment);
+                container.Children.Add(commentNode);
             }
         }
 
-        private static string Intendation(int count) => new string(Enumerable.Repeat(' ', count).ToArray());
+        private static Container YamlContainer(string[] lines, XElement element)
+        {
+            var textAfterClosingTag = element.NodesAfterSelf().First();
+            var nodeAfterTag = element.Nodes().First();
 
-        private static void WriteLine(int intendation, StringBuilder builder, string content) => builder.Append(Intendation(intendation)).AppendLine(content);
+            var headerStartPosition = GetCharacterPositionAtLineStart(element, lines);
+            var headerEndPosition = GetCharacterPositionAtLineEnd(nodeAfterTag, lines);
 
-        private static string YamlSpan(string name, int start, int end) => $"{name}: [{start}, {end}]";
+            var footerStartPosition = GetCharacterPositionAtLineStart(textAfterClosingTag, lines);
+            var footerEndPosition = GetCharacterPositionAtLineEnd(textAfterClosingTag, lines);
 
-        private static string YamlSpan(string name, params string[] nested) => $"{name}: {{ {string.Join(", ", nested)} }}";
+            var container = new Container
+                                {
+                                    Type = element.Name.LocalName,
+                                    Name = element.Attribute("name").Value,
+                                    LocationSpan = new LocationSpan(YamlStart(element), YamlEnd(textAfterClosingTag)),
+                                    HeaderSpan = new CharacterSpan(headerStartPosition, headerEndPosition),
+                                    FooterSpan = new CharacterSpan(footerStartPosition, footerEndPosition),
+                                };
+            return container;
+        }
 
-        private static string YamlStart(IXmlLineInfo node) => YamlStart(node.LineNumber, node.LinePosition - 1);
+        private static TerminalNode YamlTerminalNode(string[] lines, XElement element)
+        {
+            var textAfterClosingTag = element.NodesAfterSelf().First();
 
-        private static string YamlStart(int lineNumber, int linePosition) => YamlSpan("start", lineNumber, linePosition);
+            var startPosition = GetCharacterPositionAtLineStart(element, lines);
+            var endPosition = GetCharacterPositionAtLineEnd(textAfterClosingTag, lines);
 
-        private static string YamlEnd(IXmlLineInfo node)
+            var terminalNode = new TerminalNode
+                                   {
+                                       Type = element.Name.LocalName,
+                                       Name = element.Name.LocalName,
+                                       LocationSpan = new LocationSpan(YamlStart(element), YamlEnd(textAfterClosingTag)),
+                                       Span = new CharacterSpan(startPosition, endPosition),
+                                   };
+            return terminalNode;
+        }
+
+        private static LineInfo YamlStart(IXmlLineInfo node) => YamlLine(node.LineNumber, node.LinePosition - 1);
+
+        private static LineInfo YamlEnd(IXmlLineInfo node)
         {
             var content = node.ToString();
             if (node is XText text)
@@ -253,10 +273,10 @@ namespace ResXSemanticParser
                 content = content.Substring(0, charactersToTake);
             }
 
-            return YamlEnd(node.LineNumber, node.LinePosition - 1 + content.Length);
+            return YamlLine(node.LineNumber, node.LinePosition - 1 + content.Length);
         }
 
-        private static string YamlEnd(int lineNumber, int linePosition) => YamlSpan("end", lineNumber, linePosition);
+        private static LineInfo YamlLine(int lineNumber, int linePosition) => new LineInfo(lineNumber, linePosition);
 
         private static int GetCharacterPositionAtLineStart(IXmlLineInfo info, string[] lines) => CharactersUntilLine(lines, info.LineNumber - 1);
         

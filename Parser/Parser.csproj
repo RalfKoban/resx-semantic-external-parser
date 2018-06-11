@@ -45,9 +45,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ParserOld.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Parser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Yaml\CharacterSpan.cs" />
+    <Compile Include="Yaml\Container.cs" />
+    <Compile Include="Yaml\ContainerOrTerminalNode.cs" />
+    <Compile Include="Yaml\LineInfo.cs" />
+    <Compile Include="Yaml\LocationSpan.cs" />
+    <Compile Include="Yaml\ParsingError.cs" />
+    <Compile Include="Yaml\TerminalNode.cs" />
+    <Compile Include="Yaml\File.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
