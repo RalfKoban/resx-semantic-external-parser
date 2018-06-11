@@ -5,8 +5,11 @@ namespace ResXSemanticParser
 {
     class Program
     {
-        static void Main(string[] args)
+        static int Main(string[] args)
         {
+            if (args.Length != 2)
+                return -1;
+
             var shell = args[0]; // reserved for future usage
             var flagFile = args[1];
 
@@ -19,7 +22,7 @@ namespace ResXSemanticParser
                 if ("end".Equals(fileToParse, StringComparison.OrdinalIgnoreCase))
                 {
                     // session is done
-                    return;
+                    return 0;
                 }
 
                 var encodingToUse = Console.ReadLine();
