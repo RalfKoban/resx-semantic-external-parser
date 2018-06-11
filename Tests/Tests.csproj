@@ -50,9 +50,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ResXSemanticParser\ResXSemanticParser.csproj">
+    <ProjectReference Include="..\Parser\Parser.csproj">
       <Project>{4e9e944d-118e-4d86-9b56-2b0b878a62b8}</Project>
-      <Name>ResXSemanticParser</Name>
+      <Name>Parser</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
