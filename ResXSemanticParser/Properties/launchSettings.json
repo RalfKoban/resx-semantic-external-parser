@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "ResXSemanticParser": {
-      "commandName": "Project",
-      "commandLineArgs": "shell c:\\test.txt"
-    }
-  }
-}
