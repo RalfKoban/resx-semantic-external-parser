@@ -2,3 +2,5 @@
 *.ncrunchsolution.user
 /*/obj/
 /*/bin/
+/packages/
+/_NCrunch*/

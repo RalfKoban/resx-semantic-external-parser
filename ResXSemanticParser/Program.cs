@@ -43,17 +43,5 @@ namespace ResXSemanticParser
                 Console.WriteLine(success);
             }
         }
-
-        static void Main2(string[] args)
-        {
-            var shell = args[0];
-            var flagFile = args[1];
-
-            Console.WriteLine($"Shell: {shell} FlagFile: {flagFile}");
-
-            Parser.TryParse(@"D:\Private\MiKo Solutions\resx-semantic-external-parser\test.resx", out var yamlContent);
-            Console.WriteLine(yamlContent);
-            Console.ReadLine();
-        }
     }
 }
