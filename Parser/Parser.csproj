@@ -52,6 +52,7 @@
     <Compile Include="Yaml\CharacterSpan.cs" />
     <Compile Include="Yaml\Container.cs" />
     <Compile Include="Yaml\ContainerOrTerminalNode.cs" />
+    <Compile Include="Yaml\IntendedString.cs" />
     <Compile Include="Yaml\LineInfo.cs" />
     <Compile Include="Yaml\LocationSpan.cs" />
     <Compile Include="Yaml\ParsingError.cs" />

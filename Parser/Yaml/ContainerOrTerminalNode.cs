@@ -15,7 +15,7 @@ namespace ResXSemanticParser.Yaml
 
         public virtual void FillYamlString(StringBuilder builder, int intendation)
         {
-            var intended = new string(Enumerable.Repeat(' ', intendation).ToArray());
+            var intended = IntendedString.From(intendation);
 
             builder.Append(intended).Append("type: ").AppendLine(Type);
             builder.Append(intended).Append("name: ").AppendLine(Name);

@@ -16,7 +16,7 @@ namespace ResXSemanticParser.Yaml
         {
             base.FillYamlString(builder, intendation);
 
-            var intended = new string(Enumerable.Repeat(' ', intendation).ToArray());
+            var intended = IntendedString.From(intendation);
 
             builder.Append(intended).Append("headerSpan: ").AppendLine(HeaderSpan.ToYamlString());
             builder.Append(intended).Append("footerSpan: ").AppendLine(FooterSpan.ToYamlString());
