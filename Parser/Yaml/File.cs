@@ -1,6 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace ResXSemanticParser.Yaml
 {
@@ -20,27 +20,26 @@ namespace ResXSemanticParser.Yaml
         {
             var parsingErrorsDetected = ParsingErrors.Any();
 
-            var parts = new List<string>
-                            {
-                                "type: file",
-                                $"name: {Name}",
-                                LocationSpan.ToYamlString(),
-                                FooterSpan.ToYamlString("footerSpan"),
-                                $"parsingErrorsDetected: {parsingErrorsDetected}"
-                            };
+            var builder = new StringBuilder()
+                            .Append("type: ").AppendLine("file")
+                            .Append("name: ").AppendLine(Name)
+                            .Append("locationSpan: ").AppendLine(LocationSpan.ToYamlString())
+                            .Append("footerSpan: ").AppendLine(FooterSpan.ToYamlString())
+                            .Append("parsingErrorsDetected: ").AppendLine(parsingErrorsDetected.ToString());
 
             if (Children.Any())
             {
-                parts.Add("children:");
+                builder.AppendLine("children: ");
+
                 foreach (var child in Children)
                 {
-                    parts.Add("- " + child.ToYamlString());
+                    builder.AppendLine("- ");
+                    child.FillYamlString(builder, 3);
+                    builder.AppendLine();
                 }
             }
 
-            parts.Add(string.Empty);
-
-            return string.Join(Environment.NewLine, parts);
+            return builder.ToString();
         }
     }
 }

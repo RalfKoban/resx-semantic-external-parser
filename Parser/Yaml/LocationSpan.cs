@@ -14,7 +14,7 @@ namespace ResXSemanticParser.Yaml
 
         public LineInfo End { get; }
 
-        public string ToYamlString() => $"locationSpan : {{start: {Start.ToYamlString()}, end: {End.ToYamlString()}}}";
+        public string ToYamlString() => $"{{start: {Start.ToYamlString()}, end: {End.ToYamlString()}}}";
 
         public bool Equals(LocationSpan other)
         {

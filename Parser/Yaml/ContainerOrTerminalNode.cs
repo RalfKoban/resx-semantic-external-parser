@@ -1,6 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Diagnostics;
+using System.Linq;
+using System.Text;
 
 namespace ResXSemanticParser.Yaml
 {
@@ -13,16 +13,15 @@ namespace ResXSemanticParser.Yaml
 
         public LocationSpan LocationSpan { get; set; }
 
-        public virtual string ToYamlString()
+        public virtual void FillYamlString(StringBuilder builder, int intendation)
         {
-            var parts = new List<string>
-                            {
-                                $"type: {Type}",
-                                $"name: {Name}",
-                                LocationSpan.ToYamlString(),
-                            };
+            var intended = new string(Enumerable.Repeat(' ', intendation).ToArray());
 
-            return string.Join(Environment.NewLine, parts);
+            builder.Append(intended).Append("type: ").AppendLine(Type);
+            builder.Append(intended).Append("name: ").AppendLine(Name);
+            builder.Append(intended).Append("locationSpan: ").AppendLine(LocationSpan.ToYamlString());
         }
+
+        protected static string GetNested(int nesting, string value) => new string(Enumerable.Repeat(' ', nesting).ToArray()) + value;
     }
 }

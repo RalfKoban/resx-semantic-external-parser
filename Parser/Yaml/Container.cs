@@ -1,6 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace ResXSemanticParser.Yaml
 {
@@ -12,27 +12,26 @@ namespace ResXSemanticParser.Yaml
 
         public List<ContainerOrTerminalNode> Children { get; } = new List<ContainerOrTerminalNode>();
 
-        public override string ToYamlString()
+        public override void FillYamlString(StringBuilder builder, int intendation)
         {
-            var parts = new List<string>
-                            {
-                                base.ToYamlString(),
-                                HeaderSpan.ToYamlString("headerSpan"),
-                                FooterSpan.ToYamlString("footerSpan"),
-                            };
+            base.FillYamlString(builder, intendation);
+
+            var intended = new string(Enumerable.Repeat(' ', intendation).ToArray());
+
+            builder.Append(intended).Append("headerSpan: ").AppendLine(HeaderSpan.ToYamlString());
+            builder.Append(intended).Append("footerSpan: ").AppendLine(FooterSpan.ToYamlString());
 
             if (Children.Any())
             {
-                parts.Add("children:");
+                builder.Append(intended).AppendLine("children: ");
+
                 foreach (var child in Children)
                 {
-                    parts.Add("- " + child.ToYamlString());
+                    builder.Append(intended).AppendLine("- ");
+                    child.FillYamlString(builder, intendation + 3);
+                    builder.AppendLine();
                 }
             }
-
-            parts.Add(string.Empty);
-
-            return string.Join(Environment.NewLine, parts);
         }
     }
 }

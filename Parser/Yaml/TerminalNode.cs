@@ -1,4 +1,5 @@
-﻿using System;
+﻿using System.Linq;
+using System.Text;
 
 namespace ResXSemanticParser.Yaml
 {
@@ -6,15 +7,13 @@ namespace ResXSemanticParser.Yaml
     {
         public CharacterSpan Span { get; set; }
 
-        public override string ToYamlString()
+        public override void FillYamlString(StringBuilder builder, int intendation)
         {
-            var parts = new[]
-                            {
-                                base.ToYamlString(),
-                                Span.ToYamlString("span"),
-                            };
+            base.FillYamlString(builder, intendation);
 
-            return string.Join(Environment.NewLine, parts);
+            var intended = new string(Enumerable.Repeat(' ', intendation).ToArray());
+
+            builder.Append(intended).Append("span: ").AppendLine(Span.ToYamlString());
         }
     }
 }

@@ -16,7 +16,7 @@ namespace ResXSemanticParser.Yaml
 
         public override string ToString() => $"Start={Start}, End={End}";
 
-        public string ToYamlString(string prefix) => $"{prefix}: [{Start}, {End}]";
+        public string ToYamlString() => $"[{Start}, {End}]";
 
         public bool Equals(CharacterSpan other)
         {
