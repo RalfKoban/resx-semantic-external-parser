@@ -21,7 +21,5 @@ namespace ResXSemanticParser.Yaml
             builder.Append(intended).Append("name: ").AppendLine(Name);
             builder.Append(intended).Append("locationSpan: ").AppendLine(LocationSpan.ToYamlString());
         }
-
-        protected static string GetNested(int nesting, string value) => new string(Enumerable.Repeat(' ', nesting).ToArray()) + value;
     }
 }
