@@ -108,7 +108,7 @@ namespace Tests
         [Test]
         public void Bla()
         {
-            string s = @"type: file
+            var s = @"type: file
 name: Z:\Workspaces\25368\9\Tests\test.resx
 locationSpan : {start: [1, 0], end: [141, 0]}
 footerSpan: [6606, 6607]
