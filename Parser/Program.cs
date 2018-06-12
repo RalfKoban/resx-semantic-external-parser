@@ -7,6 +7,8 @@ namespace ResXSemanticParser
 {
     public class Program
     {
+        const string Category = "RKN Semantic";
+
         public static async Task<int> Main(string[] args)
         {
             if (args.Length != 2)
@@ -30,17 +32,25 @@ namespace ResXSemanticParser
                 var encodingToUse = Console.In.ReadLine();
                 var outputFileToWrite = Console.In.ReadLine();
 
-                Debug.WriteLine($"File to parse: '{fileToParse}'", "RKN Semantic");
-                Debug.WriteLine($"Encoding: '{encodingToUse}'", "RKN Semantic");
-                Debug.WriteLine($"File to write: {outputFileToWrite}", "RKN Semantic");
+                Debug.WriteLine($"File to parse: '{fileToParse}'", Category);
+                Debug.WriteLine($"Encoding: '{encodingToUse}'", Category);
+                Debug.WriteLine($"File to write: {outputFileToWrite}", Category);
 
-                var success = Parser.TryParse(fileToParse, out var yamlContent) ? "OK" : "KO";
+                try
+                {
+                    var success = Parser.TryParse(fileToParse, out var yamlContent) ? "OK" : "KO";
 
-                Debug.WriteLine($"Parsed result: {success}", "RKN Semantic");
+                    Debug.WriteLine($"Parsed result: {success}", Category);
 
-                File.WriteAllText(outputFileToWrite, yamlContent);
+                    File.WriteAllText(outputFileToWrite, yamlContent);
 
-                Console.WriteLine(success);
+                    Console.WriteLine(success);
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Exception: {ex}", Category);
+                    throw;
+                }
             }
         }
     }

@@ -25,36 +25,49 @@ namespace ResXSemanticParser
             yamlContent = null;
 
             var allText = File.ReadAllText(path);
-            var lines = allText.Split(new[] {_lineEnding }, StringSplitOptions.None);
-
-            XDocument document = null;
-            var parsingErrors = string.Empty;
-            try
+            if (string.IsNullOrWhiteSpace(allText))
             {
-                document = XDocument.Parse(allText, LoadOptions.PreserveWhitespace | LoadOptions.SetLineInfo);
+                yamlContent = new Yaml.File
+                                  {
+                                      Name = path,
+                                      LocationSpan = new LocationSpan(new LineInfo(0, 0), new LineInfo(0, 0)),
+                                      FooterSpan = new CharacterSpan(0, -1),
+                                  };
+                return true;
             }
-            catch (Exception ex)
+            else
             {
-                parsingErrors = ex.Message;
+                var lines = allText.Split(new[] {_lineEnding }, StringSplitOptions.None);
+
+                XDocument document = null;
+                var parsingErrors = string.Empty;
+                try
+                {
+                    document = XDocument.Parse(allText, LoadOptions.PreserveWhitespace | LoadOptions.SetLineInfo);
+                }
+                catch (Exception ex)
+                {
+                    parsingErrors = ex.Message;
+                }
+
+                var parsingFine = string.IsNullOrWhiteSpace(parsingErrors);
+                if (parsingFine)
+                {
+                    var file = YamlFile(lines, path);
+
+                    var root = YamlRoot(file, document, lines, allText);
+
+                    // adjust footer
+                    file.FooterSpan = new CharacterSpan(root.FooterSpan.End + 1, allText.Length - 1);
+
+                    YamlInfrastructureCommentAndSchema(root, document, lines, allText);
+                    YamlResHeader(root, document, lines);
+                    YamlData(root, document, lines);
+                    yamlContent = file;
+                }
+
+                return parsingFine;
             }
-
-            var parsingFine = string.IsNullOrWhiteSpace(parsingErrors);
-            if (parsingFine)
-            {
-                var file = YamlFile(lines, path);
-
-                var root = YamlRoot(file, document, lines, allText);
-
-                // adjust footer
-                file.FooterSpan = new CharacterSpan(root.FooterSpan.End + 1, allText.Length - 1);
-
-                YamlInfrastructureCommentAndSchema(root, document, lines, allText);
-                YamlResHeader(root, document, lines);
-                YamlData(root, document, lines);
-                yamlContent = file;
-            }
-
-            return parsingFine;
         }
 
         private static Yaml.File YamlFile(string[] lines, string fileName)
