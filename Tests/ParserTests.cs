@@ -1,11 +1,14 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
+
 using NUnit.Framework;
+
 using ResXSemanticParser.Yaml;
+
 using YamlDotNet.Core;
 using YamlDotNet.RepresentationModel;
+
 using File = ResXSemanticParser.Yaml.File;
 using Parser = ResXSemanticParser.Parser;
 
@@ -27,61 +30,90 @@ namespace Tests
         }
 
         [Test]
-        public void File_LocationSpan_matches()
+        public void File_matches()
         {
-            var fileSpan = ObjectUnderTest.LocationSpan;
+            Assert.That(ObjectUnderTest.LocationSpan.Start, Is.EqualTo(new LineInfo(1, 0)));
+            Assert.That(ObjectUnderTest.LocationSpan.End, Is.EqualTo(new LineInfo(141, 0)));
 
-            Assert.That(fileSpan.Start, Is.EqualTo(new LineInfo(1, 0)));
-            Assert.That(fileSpan.End, Is.EqualTo(new LineInfo(141, 0)));
-        }
-
-        [Test]
-        public void File_FooterSpan_matches()
-        {
             Assert.That(ObjectUnderTest.FooterSpan, Is.EqualTo(new CharacterSpan(6606, 6607)));
         }
 
         [Test]
-        public void Root_LocationSpan_matches()
+        public void Root_matches()
         {
-            var root = ObjectUnderTest.Children.Single();
+            var node = ObjectUnderTest.Children.Single();
 
-            Assert.That(root.LocationSpan.Start, Is.EqualTo(new LineInfo(2, 1)));
-            Assert.That(root.LocationSpan.End, Is.EqualTo(new LineInfo(139, 7)));
+            Assert.That(node.LocationSpan.Start, Is.EqualTo(new LineInfo(2, 1)));
+            Assert.That(node.LocationSpan.End, Is.EqualTo(new LineInfo(139, 7)));
+
+            Assert.That(node.HeaderSpan, Is.EqualTo(new CharacterSpan(40, 47)));
+            Assert.That(node.FooterSpan, Is.EqualTo(new CharacterSpan(6597, 6605)));
         }
 
         [Test]
-        public void Root_HeaderSpan_matches()
+        public void Schema_matches()
         {
-            var root = ObjectUnderTest.Children.Single();
+            var node = ObjectUnderTest.Children.Single().Children.OfType<TerminalNode>().First();
 
-            Assert.That(root.HeaderSpan, Is.EqualTo(new CharacterSpan(40, 47)));
+            Assert.That(node.LocationSpan.Start, Is.EqualTo(new LineInfo(3, 1)));
+            Assert.That(node.LocationSpan.End, Is.EqualTo(new LineInfo(107, 17)));
+
+            Assert.That(node.Span, Is.EqualTo(new CharacterSpan(48, 5266)));
         }
 
         [Test]
-        public void Root_FooterSpan_matches()
+        public void ResHeader_1_matches()
         {
-            var root = ObjectUnderTest.Children.Single();
+            var node = ObjectUnderTest.Children.Single().Children.OfType<TerminalNode>().First(_ => _.Name == "resmimetype");
 
-            Assert.That(root.FooterSpan, Is.EqualTo(new CharacterSpan(6597, 6605)));
+            Assert.That(node.LocationSpan.Start, Is.EqualTo(new LineInfo(108, 1)));
+            Assert.That(node.LocationSpan.End, Is.EqualTo(new LineInfo(110, 16)));
+
+            Assert.That(node.Span, Is.EqualTo(new CharacterSpan(5267, 5356)));
         }
 
         [Test]
-        public void Schema_LocationSpan_matches()
+        public void ResHeader_2_matches()
         {
-            var schema = ObjectUnderTest.Children.Single().Children.OfType<TerminalNode>().First();
-            var span = schema.LocationSpan;
+            var node = ObjectUnderTest.Children.Single().Children.OfType<TerminalNode>().First(_ => _.Name == "version");
 
-            Assert.That(span.Start, Is.EqualTo(new LineInfo(3, 1)));
-            Assert.That(span.End, Is.EqualTo(new LineInfo(107, 17)));
+            Assert.That(node.LocationSpan.Start, Is.EqualTo(new LineInfo(111, 1)));
+            Assert.That(node.LocationSpan.End, Is.EqualTo(new LineInfo(113, 16)));
+
+            Assert.That(node.Span, Is.EqualTo(new CharacterSpan(5357, 5426)));
         }
 
         [Test]
-        public void Schema_Span_matches()
+        public void ResHeader_3_matches()
         {
-            var schema = ObjectUnderTest.Children.Single().Children.OfType<TerminalNode>().First();
+            var node = ObjectUnderTest.Children.Single().Children.OfType<TerminalNode>().First(_ => _.Name == "reader");
 
-            Assert.That(schema.Span, Is.EqualTo(new CharacterSpan(48, 5266)));
+            Assert.That(node.LocationSpan.Start, Is.EqualTo(new LineInfo(114, 1)));
+            Assert.That(node.LocationSpan.End, Is.EqualTo(new LineInfo(116, 16)));
+
+            Assert.That(node.Span, Is.EqualTo(new CharacterSpan(5427, 5616)));
+        }
+
+        [Test]
+        public void ResHeader_4_matches()
+        {
+            var node = ObjectUnderTest.Children.Single().Children.OfType<TerminalNode>().First(_ => _.Name == "writer");
+
+            Assert.That(node.LocationSpan.Start, Is.EqualTo(new LineInfo(117, 1)));
+            Assert.That(node.LocationSpan.End, Is.EqualTo(new LineInfo(119, 16)));
+
+            Assert.That(node.Span, Is.EqualTo(new CharacterSpan(5617, 5806)));
+        }
+
+        [Test]
+        public void Assembly_matches()
+        {
+            var node = ObjectUnderTest.Children.Single().Children.OfType<TerminalNode>().First(_ => _.Type == "assembly");
+
+            Assert.That(node.LocationSpan.Start, Is.EqualTo(new LineInfo(120, 1)));
+            Assert.That(node.LocationSpan.End, Is.EqualTo(new LineInfo(120, 140)));
+
+            Assert.That(node.Span, Is.EqualTo(new CharacterSpan(5807, 5946)));
         }
 
         [Test]
@@ -103,24 +135,6 @@ namespace Tests
             {
                 Assert.Fail(ex.Message + Environment.NewLine + yaml);
             }
-        }
-
-        [Test]
-        public void Bla()
-        {
-            var s = @"type: file
-name: Z:\Workspaces\25368\9\Tests\test.resx
-locationSpan : {start: [1, 0], end: [141, 0]}
-footerSpan: [6606, 6607]
-parsingErrorsDetected: False
-children:
-- type: root
-  name: root
-  locationSpan : {start: [2, 1], end: [139, 7]}
-  headerSpan: [40, 47]
-  footerSpan: [6597, 6605]";
-
-            VerifyRead(s);
         }
     }
 }
