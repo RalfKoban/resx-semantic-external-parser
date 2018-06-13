@@ -133,7 +133,7 @@ namespace ResXSemanticParser
                                {
                                    Type = "root",
                                    Name = "root",
-                                   LocationSpan = new LocationSpan(YamlStart(root), endLine),
+                                   LocationSpan = new LocationSpan(YamlLineStart(root), endLine),
                                    HeaderSpan = headerSpan,
                                    FooterSpan = footerSpan,
 
@@ -173,34 +173,32 @@ namespace ResXSemanticParser
         {
             const string ENDTAG = "</xsd:schema>";
 
-            var startLine = GetFirstLineInfo("<!-- ", lines);
-            startLine = new LineInfo(startLine.LineNumber, 1); // we want to start at first
+            if (allText.Contains(ENDTAG))
+            {
+                var startLine = GetFirstLineInfo("<!-- ", lines);
+                startLine = new LineInfo(startLine.LineNumber, 1); // we want to start at first
 
-            var endLine = GetLastLineInfo(ENDTAG, lines);
-            endLine = new LineInfo(endLine.LineNumber, endLine.LinePosition + LineEnding.Length); // we want to include line breaks
-            var endTagSpan = GetLastCharacterSpan(ENDTAG, allText);
+                var endLine = GetLastLineInfo(ENDTAG, lines);
+                endLine = new LineInfo(endLine.LineNumber, endLine.LinePosition + LineEnding.Length); // we want to include line breaks
+                var endTagSpan = GetLastCharacterSpan(ENDTAG, allText);
 
-            var node = new TerminalNode
-                           {
-                               Type = "schema",
-                               Name = "schema",
-                               LocationSpan = new LocationSpan(startLine, endLine),
-                               Span = new CharacterSpan(parent.HeaderSpan.End + 1, endTagSpan.End),
-                           };
-            parent.Children.Add(node);
+                var node = new TerminalNode
+                               {
+                                   Type = "schema",
+                                   Name = "schema",
+                                   LocationSpan = new LocationSpan(startLine, endLine),
+                                   Span = new CharacterSpan(parent.HeaderSpan.End + 1, endTagSpan.End),
+                               };
+                parent.Children.Add(node);
+            }
         }
 
         private static void YamlResHeader(Container parent, XDocument document, string[] lines)
         {
             foreach (var header in document.Descendants("resheader"))
             {
-//                var container = YamlContainer(lines, header);
-//
-//                YamlValue(container, header, lines);
-
-                var container = YamlTerminalNode(lines, header);
-
-                parent.Children.Add(container);
+                var node = YamlTerminalNode(lines, header);
+                parent.Children.Add(node);
             }
         }
 
@@ -208,13 +206,8 @@ namespace ResXSemanticParser
         {
             foreach (var header in document.Descendants("assembly"))
             {
-//                var container = YamlContainer(lines, header);
-//
-//                YamlValue(container, header, lines);
-
-                var container = YamlTerminalNode(lines, header);
-
-                parent.Children.Add(container);
+                var node = YamlTerminalNode(lines, header);
+                parent.Children.Add(node);
             }
         }
 
@@ -222,55 +215,9 @@ namespace ResXSemanticParser
         {
             foreach (var data in document.Descendants("data"))
             {
-//                var container = YamlContainer(lines, data);
-//
-//                YamlValue(container, data, lines);
-//                YamlComment(container, data, lines);
-
-                var container = YamlTerminalNode(lines, data);
-
-                parent.Children.Add(container);
+                var node = YamlTerminalNode(lines, data);
+                parent.Children.Add(node);
             }
-        }
-
-        private static void YamlValue(Container container, XElement data, string[] lines)
-        {
-            foreach (var value in data.Descendants("value"))
-            {
-                var valueNode = YamlTerminalNode(lines, value);
-                container.Children.Add(valueNode);
-            }
-        }
-
-        private static void YamlComment(Container container, XElement data, string[] lines)
-        {
-            foreach (var comment in data.Descendants("comment"))
-            {
-                var commentNode = YamlTerminalNode(lines, comment);
-                container.Children.Add(commentNode);
-            }
-        }
-
-        private static Container YamlContainer(string[] lines, XElement element)
-        {
-            var textAfterClosingTag = element.NodesAfterSelf().First();
-            var nodeAfterTag = element.Nodes().First();
-
-            var headerStartPosition = GetCharacterPositionAtLineStart(element, lines);
-            var headerEndPosition = GetCharacterPositionAtLineEnd(nodeAfterTag, lines);
-
-            var footerStartPosition = GetCharacterPositionAtLineStart(textAfterClosingTag, lines);
-            var footerEndPosition = GetCharacterPositionAtLineEnd(textAfterClosingTag, lines);
-
-            var container = new Container
-                                {
-                                    Type = element.Name.LocalName,
-                                    Name = element.Attribute("name")?.Value ?? element.Name.LocalName,
-                                    LocationSpan = new LocationSpan(YamlStart(element), YamlEnd(textAfterClosingTag)),
-                                    HeaderSpan = new CharacterSpan(headerStartPosition, headerEndPosition),
-                                    FooterSpan = new CharacterSpan(footerStartPosition, footerEndPosition),
-                                };
-            return container;
         }
 
         private static TerminalNode YamlTerminalNode(string[] lines, XElement element)
@@ -284,20 +231,20 @@ namespace ResXSemanticParser
                                    {
                                        Type = element.Name.LocalName,
                                        Name = element.Attribute("name")?.Value ?? element.Name.LocalName,
-                                       LocationSpan = new LocationSpan(YamlStart(element), YamlEnd(textAfterClosingTag)),
+                                       LocationSpan = new LocationSpan(YamlLineStart(element), YamlLineEnd(textAfterClosingTag)),
                                        Span = new CharacterSpan(startPosition, endPosition),
                                    };
             return terminalNode;
         }
 
-        private static LineInfo YamlStart(IXmlLineInfo node) => YamlLine(node.LineNumber, node.LinePosition - 1);
+        private static LineInfo YamlLineStart(IXmlLineInfo node) => YamlLine(node.LineNumber, 1);
 
-        private static LineInfo YamlEnd(IXmlLineInfo node)
+        private static LineInfo YamlLineEnd(IXmlLineInfo node)
         {
             var content = node.ToString();
+
             if (node is XText text)
             {
-                content = text.Value;
                 var charactersToTake = content.IndexOf(LineEnding, StringComparison.OrdinalIgnoreCase) + LineEnding.Length;
                 content = content.Substring(0, charactersToTake);
             }
