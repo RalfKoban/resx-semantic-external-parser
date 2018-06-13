@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
 using System.Xml.Linq;
@@ -61,6 +62,9 @@ namespace ResXSemanticParser
                     YamlResHeader(root, document, lines);
                     YamlData(root, document, lines);
                     YamlAssembly(root, document, lines);
+
+                    // sort based on span
+                    root.Children.Sort(new AscendingSpanComparer());
                 }
 
                 yamlContent = file;
@@ -243,7 +247,7 @@ namespace ResXSemanticParser
         {
             var content = node.ToString();
 
-            if (node is XText text)
+            if (node is XText)
             {
                 var charactersToTake = content.IndexOf(LineEnding, StringComparison.OrdinalIgnoreCase) + LineEnding.Length;
                 content = content.Substring(0, charactersToTake);
@@ -264,5 +268,25 @@ namespace ResXSemanticParser
             var charactersBefore = lines.Take(linesToTake).Sum(_ => _.Length) + lineEndingLengths;
             return charactersBefore;
         }
-    }
+
+        private sealed class AscendingSpanComparer: IComparer<ContainerOrTerminalNode>
+        {
+            public int Compare(ContainerOrTerminalNode x, ContainerOrTerminalNode y)
+            {
+                if (x is TerminalNode tX)
+                {
+                    if (y is TerminalNode tY) return tX.Span.Start - tY.Span.Start;
+                    if (y is Container cY) return tX.Span.Start - cY.HeaderSpan.Start;
+                }
+
+                if (x is Container cX)
+                {
+                    if (y is TerminalNode tY) return cX.HeaderSpan.Start - tY.Span.Start;
+                    if (y is Container cY) return cX.HeaderSpan.Start - cY.HeaderSpan.Start;
+                }
+
+                return 0;
+            }
+        }
+}
 }
