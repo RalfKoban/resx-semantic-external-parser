@@ -62,7 +62,7 @@ namespace Tests
         }
 
         [Test]
-        public void ResHeader_1_matches()
+        public void ResHeader_resmimetype_matches()
         {
             var node = ObjectUnderTest.Children.Single().Children.OfType<TerminalNode>().First(_ => _.Name == "resmimetype");
 
@@ -73,7 +73,7 @@ namespace Tests
         }
 
         [Test]
-        public void ResHeader_2_matches()
+        public void ResHeader_version_matches()
         {
             var node = ObjectUnderTest.Children.Single().Children.OfType<TerminalNode>().First(_ => _.Name == "version");
 
@@ -84,7 +84,7 @@ namespace Tests
         }
 
         [Test]
-        public void ResHeader_3_matches()
+        public void ResHeader_reader_matches()
         {
             var node = ObjectUnderTest.Children.Single().Children.OfType<TerminalNode>().First(_ => _.Name == "reader");
 
@@ -95,7 +95,7 @@ namespace Tests
         }
 
         [Test]
-        public void ResHeader_4_matches()
+        public void ResHeader_writer_matches()
         {
             var node = ObjectUnderTest.Children.Single().Children.OfType<TerminalNode>().First(_ => _.Name == "writer");
 
@@ -114,6 +114,61 @@ namespace Tests
             Assert.That(node.LocationSpan.End, Is.EqualTo(new LineInfo(120, 140)));
 
             Assert.That(node.Span, Is.EqualTo(new CharacterSpan(5807, 5946)));
+        }
+
+        [Test]
+        public void Data_Image1_matches()
+        {
+            var node = ObjectUnderTest.Children.Single().Children.OfType<TerminalNode>().First(_ => _.Name == "Image1");
+
+            Assert.That(node.LocationSpan.Start, Is.EqualTo(new LineInfo(121, 1)));
+            Assert.That(node.LocationSpan.End, Is.EqualTo(new LineInfo(123, 11)));
+
+            Assert.That(node.Span, Is.EqualTo(new CharacterSpan(5947, 6175)));
+        }
+
+        [Test]
+        public void Data_String1_matches()
+        {
+            var node = ObjectUnderTest.Children.Single().Children.OfType<TerminalNode>().First(_ => _.Name == "String1");
+
+            Assert.That(node.LocationSpan.Start, Is.EqualTo(new LineInfo(124, 1)));
+            Assert.That(node.LocationSpan.End, Is.EqualTo(new LineInfo(126, 11)));
+
+            Assert.That(node.Span, Is.EqualTo(new CharacterSpan(6176, 6264)));
+        }
+
+        [Test]
+        public void Data_String2_matches()
+        {
+            var node = ObjectUnderTest.Children.Single().Children.OfType<TerminalNode>().First(_ => _.Name == "String2");
+
+            Assert.That(node.LocationSpan.Start, Is.EqualTo(new LineInfo(127, 1)));
+            Assert.That(node.LocationSpan.End, Is.EqualTo(new LineInfo(132, 11)));
+
+            Assert.That(node.Span, Is.EqualTo(new CharacterSpan(6265, 6418)));
+        }
+
+        [Test]
+        public void Data_String3_matches()
+        {
+            var node = ObjectUnderTest.Children.Single().Children.OfType<TerminalNode>().First(_ => _.Name == "String3");
+
+            Assert.That(node.LocationSpan.Start, Is.EqualTo(new LineInfo(133, 1)));
+            Assert.That(node.LocationSpan.End, Is.EqualTo(new LineInfo(135, 11)));
+
+            Assert.That(node.Span, Is.EqualTo(new CharacterSpan(6419, 6507)));
+        }
+
+        [Test]
+        public void Data_String4_matches()
+        {
+            var node = ObjectUnderTest.Children.Single().Children.OfType<TerminalNode>().First(_ => _.Name == "String4");
+
+            Assert.That(node.LocationSpan.Start, Is.EqualTo(new LineInfo(136, 1)));
+            Assert.That(node.LocationSpan.End, Is.EqualTo(new LineInfo(138, 11)));
+
+            Assert.That(node.Span, Is.EqualTo(new CharacterSpan(6508, 6596)));
         }
 
         [Test]
