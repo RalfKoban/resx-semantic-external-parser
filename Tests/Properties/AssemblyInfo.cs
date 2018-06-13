@@ -8,9 +8,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("Tests")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("M&M Software GmbH")]
-[assembly: AssemblyProduct("Tests")]
-[assembly: AssemblyCopyright("Copyright © M&M Software GmbH 2018")]
+[assembly: AssemblyCompany("MiKo Solutions")]
+[assembly: AssemblyProduct("ResXSemanticParser")]
+[assembly: AssemblyCopyright("Copyright © MiKo Solutions 2018")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
