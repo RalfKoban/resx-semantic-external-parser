@@ -14,7 +14,7 @@ branches:
 init:
 - git config --global core.autocrlf true
 
-environment:
+# environment:
 
 install:
   - choco install gitversion.portable -pre -y
