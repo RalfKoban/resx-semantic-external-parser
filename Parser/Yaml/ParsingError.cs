@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace ResXSemanticParser.Yaml
+namespace MiKoSolutions.SemanticParsers.ResX.Yaml
 {
     public sealed class ParsingError
     {

@@ -1,8 +1,7 @@
 ﻿using System.Diagnostics;
-using System.Linq;
 using System.Text;
 
-namespace ResXSemanticParser.Yaml
+namespace MiKoSolutions.SemanticParsers.ResX.Yaml
 {
     [DebuggerDisplay("Type={Type}, Name={Name}")]
     public abstract class ContainerOrTerminalNode

@@ -6,7 +6,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{4E9E944D-118E-4D86-9B56-2B0B878A62B8}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>ResXSemanticParser</RootNamespace>
+    <RootNamespace>MiKoSolutions.SemanticParsers.ResX</RootNamespace>
     <AssemblyName>ResXSemanticParser</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -34,7 +34,7 @@
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup>
-    <StartupObject>ResXSemanticParser.Program</StartupObject>
+    <StartupObject>MiKoSolutions.SemanticParsers.ResX.Program</StartupObject>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />

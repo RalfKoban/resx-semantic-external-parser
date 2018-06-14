@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Text;
 
-namespace ResXSemanticParser.Yaml
+namespace MiKoSolutions.SemanticParsers.ResX.Yaml
 {
     public sealed class Container : ContainerOrTerminalNode
     {

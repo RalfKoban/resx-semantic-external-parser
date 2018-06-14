@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace ResXSemanticParser.Yaml
+namespace MiKoSolutions.SemanticParsers.ResX.Yaml
 {
     internal static class IntendedString
     {

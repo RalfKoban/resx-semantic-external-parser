@@ -3,9 +3,9 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace ResXSemanticParser
+namespace MiKoSolutions.SemanticParsers.ResX
 {
-    public class Program
+    public static class Program
     {
         const string Category = "RKN Semantic";
 

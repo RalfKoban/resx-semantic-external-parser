@@ -3,12 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
 using System.Xml.Linq;
-
-using ResXSemanticParser.Yaml;
-
+using MiKoSolutions.SemanticParsers.ResX.Yaml;
 using File = System.IO.File;
 
-namespace ResXSemanticParser
+namespace MiKoSolutions.SemanticParsers.ResX
 {
     public static class Parser
     {
@@ -16,17 +14,17 @@ namespace ResXSemanticParser
 
         public static bool TryParse(string path, out string yamlContent)
         {
-            var parsingFine = TryParseFile(path, out Yaml.File file);
+            var parsingFine = TryParseFile(path, out MiKoSolutions.SemanticParsers.ResX.Yaml.File file);
             yamlContent = file.ToYamlString();
             return parsingFine;
         }
 
-        public static bool TryParseFile(string path, out Yaml.File yamlContent)
+        public static bool TryParseFile(string path, out MiKoSolutions.SemanticParsers.ResX.Yaml.File yamlContent)
         {
             var allText = File.ReadAllText(path);
             if (string.IsNullOrWhiteSpace(allText))
             {
-                yamlContent = new Yaml.File
+                yamlContent = new MiKoSolutions.SemanticParsers.ResX.Yaml.File
                                   {
                                       Name = path,
                                       LocationSpan = new LocationSpan(new LineInfo(0, 0), new LineInfo(0, 0)),
@@ -74,9 +72,9 @@ namespace ResXSemanticParser
             }
         }
 
-        private static Yaml.File YamlFile(string[] lines, string fileName)
+        private static MiKoSolutions.SemanticParsers.ResX.Yaml.File YamlFile(string[] lines, string fileName)
         {
-            return new Yaml.File
+            return new MiKoSolutions.SemanticParsers.ResX.Yaml.File
                        {
                            Name = fileName,
                            LocationSpan = new LocationSpan(new LineInfo(1, 0), new LineInfo(lines.Length, lines.Last().Length)),

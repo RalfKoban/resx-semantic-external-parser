@@ -2,22 +2,18 @@
 using System.IO;
 using System.Linq;
 
+using MiKoSolutions.SemanticParsers.ResX.Yaml;
+
 using NUnit.Framework;
-
-using ResXSemanticParser.Yaml;
-
 using YamlDotNet.Core;
 using YamlDotNet.RepresentationModel;
 
-using File = ResXSemanticParser.Yaml.File;
-using Parser = ResXSemanticParser.Parser;
-
-namespace Tests
+namespace MiKoSolutions.SemanticParsers.ResX
 {
     [TestFixture]
     public class ParserTests
     {
-        private File ObjectUnderTest { get; set; }
+        private Yaml.File ObjectUnderTest { get; set; }
 
         [SetUp]
         public void PrepareTest()
