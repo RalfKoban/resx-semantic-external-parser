@@ -41,19 +41,19 @@ namespace Tests
         [Test]
         public void Root_matches()
         {
-            var node = ObjectUnderTest.Children.Single();
+            var node = ObjectUnderTest.Children.First(_ => _.Name == "root");
 
-            Assert.That(node.LocationSpan.Start, Is.EqualTo(new LineInfo(2, 1)));
+            Assert.That(node.LocationSpan.Start, Is.EqualTo(new LineInfo(1, 1)));
             Assert.That(node.LocationSpan.End, Is.EqualTo(new LineInfo(139, 7)));
 
-            Assert.That(node.HeaderSpan, Is.EqualTo(new CharacterSpan(40, 47)));
+            Assert.That(node.HeaderSpan, Is.EqualTo(new CharacterSpan(0, 47)));
             Assert.That(node.FooterSpan, Is.EqualTo(new CharacterSpan(6597, 6605)));
         }
 
         [Test]
         public void Schema_matches()
         {
-            var node = ObjectUnderTest.Children.Single().Children.OfType<TerminalNode>().First();
+            var node = ObjectUnderTest.Children.SelectMany(_ => _.Children.OfType<TerminalNode>()).First();
 
             Assert.That(node.LocationSpan.Start, Is.EqualTo(new LineInfo(3, 1)));
             Assert.That(node.LocationSpan.End, Is.EqualTo(new LineInfo(107, 17)));
@@ -64,7 +64,7 @@ namespace Tests
         [Test]
         public void ResHeader_resmimetype_matches()
         {
-            var node = ObjectUnderTest.Children.Single().Children.OfType<TerminalNode>().First(_ => _.Name == "resmimetype");
+            var node = ObjectUnderTest.Children.SelectMany(_ => _.Children.OfType<TerminalNode>()).First(_ => _.Name == "resmimetype");
 
             Assert.That(node.LocationSpan.Start, Is.EqualTo(new LineInfo(108, 1)));
             Assert.That(node.LocationSpan.End, Is.EqualTo(new LineInfo(110, 16)));
@@ -75,7 +75,7 @@ namespace Tests
         [Test]
         public void ResHeader_version_matches()
         {
-            var node = ObjectUnderTest.Children.Single().Children.OfType<TerminalNode>().First(_ => _.Name == "version");
+            var node = ObjectUnderTest.Children.SelectMany(_ => _.Children.OfType<TerminalNode>()).First(_ => _.Name == "version");
 
             Assert.That(node.LocationSpan.Start, Is.EqualTo(new LineInfo(111, 1)));
             Assert.That(node.LocationSpan.End, Is.EqualTo(new LineInfo(113, 16)));
@@ -86,7 +86,7 @@ namespace Tests
         [Test]
         public void ResHeader_reader_matches()
         {
-            var node = ObjectUnderTest.Children.Single().Children.OfType<TerminalNode>().First(_ => _.Name == "reader");
+            var node = ObjectUnderTest.Children.SelectMany(_ => _.Children.OfType<TerminalNode>()).First(_ => _.Name == "reader");
 
             Assert.That(node.LocationSpan.Start, Is.EqualTo(new LineInfo(114, 1)));
             Assert.That(node.LocationSpan.End, Is.EqualTo(new LineInfo(116, 16)));
@@ -97,7 +97,7 @@ namespace Tests
         [Test]
         public void ResHeader_writer_matches()
         {
-            var node = ObjectUnderTest.Children.Single().Children.OfType<TerminalNode>().First(_ => _.Name == "writer");
+            var node = ObjectUnderTest.Children.SelectMany(_ => _.Children.OfType<TerminalNode>()).First(_ => _.Name == "writer");
 
             Assert.That(node.LocationSpan.Start, Is.EqualTo(new LineInfo(117, 1)));
             Assert.That(node.LocationSpan.End, Is.EqualTo(new LineInfo(119, 16)));
@@ -108,7 +108,7 @@ namespace Tests
         [Test]
         public void Assembly_matches()
         {
-            var node = ObjectUnderTest.Children.Single().Children.OfType<TerminalNode>().First(_ => _.Type == "assembly");
+            var node = ObjectUnderTest.Children.SelectMany(_ => _.Children.OfType<TerminalNode>()).First(_ => _.Type == "assembly");
 
             Assert.That(node.LocationSpan.Start, Is.EqualTo(new LineInfo(120, 1)));
             Assert.That(node.LocationSpan.End, Is.EqualTo(new LineInfo(120, 140)));
@@ -119,7 +119,7 @@ namespace Tests
         [Test]
         public void Data_Image1_matches()
         {
-            var node = ObjectUnderTest.Children.Single().Children.OfType<TerminalNode>().First(_ => _.Name == "Image1");
+            var node = ObjectUnderTest.Children.SelectMany(_ => _.Children.OfType<TerminalNode>()).First(_ => _.Name == "Image1");
 
             Assert.That(node.LocationSpan.Start, Is.EqualTo(new LineInfo(121, 1)));
             Assert.That(node.LocationSpan.End, Is.EqualTo(new LineInfo(123, 11)));
@@ -130,7 +130,7 @@ namespace Tests
         [Test]
         public void Data_String1_matches()
         {
-            var node = ObjectUnderTest.Children.Single().Children.OfType<TerminalNode>().First(_ => _.Name == "String1");
+            var node = ObjectUnderTest.Children.SelectMany(_ => _.Children.OfType<TerminalNode>()).First(_ => _.Name == "String1");
 
             Assert.That(node.LocationSpan.Start, Is.EqualTo(new LineInfo(124, 1)));
             Assert.That(node.LocationSpan.End, Is.EqualTo(new LineInfo(126, 11)));
@@ -141,7 +141,7 @@ namespace Tests
         [Test]
         public void Data_String2_matches()
         {
-            var node = ObjectUnderTest.Children.Single().Children.OfType<TerminalNode>().First(_ => _.Name == "String2");
+            var node = ObjectUnderTest.Children.SelectMany(_ => _.Children.OfType<TerminalNode>()).First(_ => _.Name == "String2");
 
             Assert.That(node.LocationSpan.Start, Is.EqualTo(new LineInfo(127, 1)));
             Assert.That(node.LocationSpan.End, Is.EqualTo(new LineInfo(132, 11)));
@@ -152,7 +152,7 @@ namespace Tests
         [Test]
         public void Data_String3_matches()
         {
-            var node = ObjectUnderTest.Children.Single().Children.OfType<TerminalNode>().First(_ => _.Name == "String3");
+            var node = ObjectUnderTest.Children.SelectMany(_ => _.Children.OfType<TerminalNode>()).First(_ => _.Name == "String3");
 
             Assert.That(node.LocationSpan.Start, Is.EqualTo(new LineInfo(133, 1)));
             Assert.That(node.LocationSpan.End, Is.EqualTo(new LineInfo(135, 11)));
@@ -163,7 +163,7 @@ namespace Tests
         [Test]
         public void Data_String4_matches()
         {
-            var node = ObjectUnderTest.Children.Single().Children.OfType<TerminalNode>().First(_ => _.Name == "String4");
+            var node = ObjectUnderTest.Children.SelectMany(_ => _.Children.OfType<TerminalNode>()).First(_ => _.Name == "String4");
 
             Assert.That(node.LocationSpan.Start, Is.EqualTo(new LineInfo(136, 1)));
             Assert.That(node.LocationSpan.End, Is.EqualTo(new LineInfo(138, 11)));
