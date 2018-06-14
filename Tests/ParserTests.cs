@@ -23,7 +23,7 @@ namespace Tests
         public void PrepareTest()
         {
             var codeBasePath = Directory.GetParent(new Uri(typeof(ParserTests).Assembly.CodeBase).LocalPath);
-            var filePath = Path.Combine(codeBasePath.Parent.Parent.FullName, "test.resx");
+            var filePath = Path.Combine(codeBasePath.Parent.FullName, "test.resx");
 
             Parser.TryParseFile(filePath, out var file);
             ObjectUnderTest = file;
