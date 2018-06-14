@@ -59,7 +59,7 @@ configuration:
   - Debug
 #  - Release
 
-# test_script:
+test_script:
 -  .\packages\OpenCover\4.6.519\tools\OpenCover.Console.exe -register:user -target:".\nunit3-console.exe" -targetargs:" "".\ResXSemanticParser.Tests\bin\Tests.dll"" --workers=16" -returntargetcode -filter:"+[MiKo*]* -[*Test*]*" -excludebyattribute:*.ExcludeFromCodeCoverage* -excludebyfile:*\*Designer.cs -hideskipped:All -output:"c:\projects\ResXSemanticParsers\CodeCoverage.xml"
 
 # Codecov Flags (https://docs.codecov.io/v4.3.6/docs/flags)
