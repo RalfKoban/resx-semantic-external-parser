@@ -21,11 +21,11 @@ namespace ResXSemanticParser.Yaml
             var parsingErrorsDetected = ParsingErrors.Any();
 
             var builder = new StringBuilder()
-                            .Append("type: ").AppendLine("file")
-                            .Append("name: ").AppendLine(Name)
-                            .Append("locationSpan: ").AppendLine(LocationSpan.ToYamlString())
-                            .Append("footerSpan: ").AppendLine(FooterSpan.ToYamlString())
-                            .Append("parsingErrorsDetected: ").AppendLine(parsingErrorsDetected.ToString());
+                .Append("type: ").AppendLine("file")
+                .Append("name: ").AppendLine(Name)
+                .Append("locationSpan: ").AppendLine(LocationSpan.ToYamlString())
+                .Append("footerSpan: ").AppendLine(FooterSpan.ToYamlString())
+                .Append("parsingErrorsDetected: ").AppendLine(parsingErrorsDetected.ToString());
 
             if (Children.Any())
             {
@@ -35,6 +35,18 @@ namespace ResXSemanticParser.Yaml
                 {
                     builder.AppendLine("- ");
                     child.FillYamlString(builder, 3);
+                    builder.AppendLine();
+                }
+            }
+
+            if (parsingErrorsDetected)
+            {
+                builder.AppendLine("parsingError: ");
+
+                foreach (var parsingError in ParsingErrors)
+                {
+                    builder.AppendLine("- ");
+                    parsingError.FillYamlString(builder, 3);
                     builder.AppendLine();
                 }
             }
