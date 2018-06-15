@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
 using System.Xml.Linq;
+
 using MiKoSolutions.SemanticParsers.ResX.Yaml;
+
 using File = System.IO.File;
 
 namespace MiKoSolutions.SemanticParsers.ResX
@@ -14,17 +16,18 @@ namespace MiKoSolutions.SemanticParsers.ResX
 
         public static bool TryParse(string path, out string yamlContent)
         {
-            var parsingFine = TryParseFile(path, out MiKoSolutions.SemanticParsers.ResX.Yaml.File file);
+            var parsingFine = TryParseFile(path, out Yaml.File file);
             yamlContent = file.ToYamlString();
             return parsingFine;
         }
 
-        public static bool TryParseFile(string path, out MiKoSolutions.SemanticParsers.ResX.Yaml.File yamlContent)
+        public static bool TryParseFile(string path, out Yaml.File yamlContent)
         {
             var allText = File.ReadAllText(path);
+
             if (string.IsNullOrWhiteSpace(allText))
             {
-                yamlContent = new MiKoSolutions.SemanticParsers.ResX.Yaml.File
+                yamlContent = new Yaml.File
                                   {
                                       Name = path,
                                       LocationSpan = new LocationSpan(new LineInfo(0, 0), new LineInfo(0, 0)),
@@ -32,49 +35,52 @@ namespace MiKoSolutions.SemanticParsers.ResX
                                   };
                 return true;
             }
-            else
-            {
-                var lines = allText.Split(new[] {LineEnding }, StringSplitOptions.None);
 
-                var file = YamlFile(lines, path);
-
-                XDocument document = null;
-                try
-                {
-                    document = XDocument.Parse(allText, LoadOptions.PreserveWhitespace | LoadOptions.SetLineInfo);
-                }
-                catch (Exception ex)
-                {
-                    file.ParsingErrors.Add(new ParsingError { ErrorMessage = ex.Message });
-                }
-
-                var parsingFine = file.ParsingErrors.Count == 0;
-                if (parsingFine)
-                {
-                    var root = YamlRoot(lines, allText);
-
-                    // adjust footer
-                    file.FooterSpan = new CharacterSpan(root.FooterSpan.End + 1, allText.Length - 1);
-
-                    YamlInfrastructureCommentAndSchema(root, document, lines, allText);
-
-                    file.Children.Add(root);
-                    root.Children.AddRange(Yaml("resheader", document, lines));
-                    root.Children.AddRange(Yaml("data", document, lines));
-                    root.Children.AddRange(Yaml("assembly", document, lines));
-
-                    // sort based on span
-                    root.Children.Sort(new AscendingSpanComparer());
-                }
-
-                yamlContent = file;
-                return parsingFine;
-            }
+            return CreateYaml(path, allText, out yamlContent);
         }
 
-        private static MiKoSolutions.SemanticParsers.ResX.Yaml.File YamlFile(string[] lines, string fileName)
+        private static bool CreateYaml(string path, string allText, out Yaml.File yamlContent)
         {
-            return new MiKoSolutions.SemanticParsers.ResX.Yaml.File
+            var lines = allText.Split(new[] {LineEnding}, StringSplitOptions.None);
+
+            var file = YamlFile(lines, path);
+
+            XDocument document = null;
+            try
+            {
+                document = XDocument.Parse(allText, LoadOptions.PreserveWhitespace | LoadOptions.SetLineInfo);
+            }
+            catch (Exception ex)
+            {
+                file.ParsingErrors.Add(new ParsingError { ErrorMessage = ex.Message });
+            }
+
+            var parsingFine = file.ParsingErrors.Count == 0;
+            if (parsingFine)
+            {
+                var root = YamlRoot(lines, allText);
+
+                // adjust footer
+                file.FooterSpan = new CharacterSpan(root.FooterSpan.End + 1, allText.Length - 1);
+
+                YamlInfrastructureCommentAndSchema(root, lines, allText);
+
+                file.Children.Add(root);
+                root.Children.AddRange(Yaml("resheader", document, lines));
+                root.Children.AddRange(Yaml("data", document, lines));
+                root.Children.AddRange(Yaml("assembly", document, lines));
+
+                // sort based on span
+                root.Children.Sort(new AscendingSpanComparer());
+            }
+
+            yamlContent = file;
+            return parsingFine;
+        }
+
+        private static Yaml.File YamlFile(string[] lines, string fileName)
+        {
+            return new Yaml.File
                        {
                            Name = fileName,
                            LocationSpan = new LocationSpan(new LineInfo(1, 0), new LineInfo(lines.Length, lines.Last().Length)),
@@ -137,8 +143,8 @@ namespace MiKoSolutions.SemanticParsers.ResX
 
             return new Container
                        {
-                           Type = "root",
-                           Name = "root",
+                           Type = TAG,
+                           Name = TAG,
                            LocationSpan = new LocationSpan(YamlLine(1, 1), endLine),
                            HeaderSpan = headerSpan,
                            FooterSpan = footerSpan,
@@ -172,11 +178,11 @@ namespace MiKoSolutions.SemanticParsers.ResX
             return new CharacterSpan(index, index + value.Length - 1);
         }
 
-        private static void YamlInfrastructureCommentAndSchema(Container parent, XDocument document, string[] lines, string allText)
+        private static void YamlInfrastructureCommentAndSchema(Container parent, string[] lines, string allText)
         {
             const string ENDTAG = "</xsd:schema>";
 
-            if (allText.Contains(ENDTAG))
+            if (allText.LastIndexOf(ENDTAG, StringComparison.OrdinalIgnoreCase) >= 0)
             {
                 var startLine = GetFirstLineInfo("<!-- ", lines);
                 startLine = new LineInfo(startLine.LineNumber, 1); // we want to start at first
@@ -185,18 +191,17 @@ namespace MiKoSolutions.SemanticParsers.ResX
                 endLine = new LineInfo(endLine.LineNumber, endLine.LinePosition + LineEnding.Length); // we want to include line breaks
                 var endTagSpan = GetLastCharacterSpan(ENDTAG, allText);
 
-                var node = new TerminalNode
-                               {
-                                   Type = "schema",
-                                   Name = "schema",
-                                   LocationSpan = new LocationSpan(startLine, endLine),
-                                   Span = new CharacterSpan(parent.HeaderSpan.End + 1, endTagSpan.End),
-                               };
-                parent.Children.Add(node);
+                parent.Children.Add(new TerminalNode
+                                        {
+                                            Type = "schema",
+                                            Name = "schema",
+                                            LocationSpan = new LocationSpan(startLine, endLine),
+                                            Span = new CharacterSpan(parent.HeaderSpan.End + 1, endTagSpan.End),
+                                        });
             }
         }
 
-        private static IEnumerable<TerminalNode> Yaml(string name, XDocument document, string[] lines) => document.Descendants(name).Select(_ => YamlTerminalNode(_, lines)).ToList();
+        private static IEnumerable<TerminalNode> Yaml(string name, XDocument document, string[] lines) => document.Descendants(name).Select(_ => YamlTerminalNode(_, lines));
 
         private static TerminalNode YamlTerminalNode(XElement element, string[] lines)
         {
@@ -205,14 +210,15 @@ namespace MiKoSolutions.SemanticParsers.ResX
             var startPosition = GetCharacterPositionAtLineStart(element, lines);
             var endPosition = GetCharacterPositionAtLineEnd(textAfterClosingTag, lines);
 
-            var node = new TerminalNode
-                           {
-                               Type = element.Name.LocalName,
-                               Name = element.Attribute("name")?.Value ?? element.Name.LocalName,
-                               LocationSpan = new LocationSpan(YamlLineStart(element), YamlLineEnd(textAfterClosingTag)),
-                               Span = new CharacterSpan(startPosition, endPosition),
-                           };
-            return node;
+            var localName = element.Name.LocalName;
+
+            return new TerminalNode
+                       {
+                           Type = localName,
+                           Name = element.Attribute("name")?.Value ?? localName,
+                           LocationSpan = new LocationSpan(YamlLineStart(element), YamlLineEnd(textAfterClosingTag)),
+                           Span = new CharacterSpan(startPosition, endPosition),
+                       };
         }
 
         private static LineInfo YamlLineStart(IXmlLineInfo node) => YamlLine(node.LineNumber, 1);
