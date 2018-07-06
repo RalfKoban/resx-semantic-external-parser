@@ -41,7 +41,7 @@ namespace MiKoSolutions.SemanticParsers.ResX
 
         private static bool CreateYaml(string path, string allText, out Yaml.File yamlContent)
         {
-            var lines = allText.Split(new[] {LineEnding}, StringSplitOptions.None);
+            var lines = allText.Split(new[] { LineEnding }, StringSplitOptions.None);
 
             var file = YamlFile(lines, path);
 
@@ -129,8 +129,8 @@ namespace MiKoSolutions.SemanticParsers.ResX
         private static Container YamlRoot(string[] lines, string allText)
         {
             const string TAG = "root";
-            const string STARTTAG = "<"+ TAG + ">";
-            const string ENDTAG = "</"+ TAG + ">";
+            const string STARTTAG = "<" + TAG + ">";
+            const string ENDTAG = "</" + TAG + ">";
 
             var endLine = GetLastLineInfo(ENDTAG, lines);
 
@@ -148,7 +148,6 @@ namespace MiKoSolutions.SemanticParsers.ResX
                            LocationSpan = new LocationSpan(YamlLine(1, 1), endLine),
                            HeaderSpan = headerSpan,
                            FooterSpan = footerSpan,
-
                        };
         }
 
@@ -239,7 +238,7 @@ namespace MiKoSolutions.SemanticParsers.ResX
         private static LineInfo YamlLine(int lineNumber, int linePosition) => new LineInfo(lineNumber, linePosition);
 
         private static int GetCharacterPositionAtLineStart(IXmlLineInfo info, string[] lines) => CharactersUntilLine(lines, info.LineNumber - 1);
-        
+
         private static int GetCharacterPositionAtLineEnd(IXmlLineInfo info, string[] lines) => CharactersUntilLine(lines, info.LineNumber) - 1;
 
         private static int CharactersUntilLine(string[] lines, int linesToTake)
@@ -249,20 +248,34 @@ namespace MiKoSolutions.SemanticParsers.ResX
             return charactersBefore;
         }
 
-        private sealed class AscendingSpanComparer: IComparer<ContainerOrTerminalNode>
+        private sealed class AscendingSpanComparer : IComparer<ContainerOrTerminalNode>
         {
             public int Compare(ContainerOrTerminalNode x, ContainerOrTerminalNode y)
             {
                 if (x is TerminalNode tX)
                 {
-                    if (y is TerminalNode tY) return tX.Span.Start - tY.Span.Start;
-                    if (y is Container cY) return tX.Span.Start - cY.HeaderSpan.Start;
+                    if (y is TerminalNode tY)
+                    {
+                        return tX.Span.Start - tY.Span.Start;
+                    }
+
+                    if (y is Container cY)
+                    {
+                        return tX.Span.Start - cY.HeaderSpan.Start;
+                    }
                 }
 
                 if (x is Container cX)
                 {
-                    if (y is TerminalNode tY) return cX.HeaderSpan.Start - tY.Span.Start;
-                    if (y is Container cY) return cX.HeaderSpan.Start - cY.HeaderSpan.Start;
+                    if (y is TerminalNode tY)
+                    {
+                        return cX.HeaderSpan.Start - tY.Span.Start;
+                    }
+
+                    if (y is Container cY)
+                    {
+                        return cX.HeaderSpan.Start - cY.HeaderSpan.Start;
+                    }
                 }
 
                 return 0;

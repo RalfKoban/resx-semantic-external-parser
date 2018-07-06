@@ -18,8 +18,16 @@ namespace MiKoSolutions.SemanticParsers.ResX.Yaml
 
         public bool Equals(LocationSpan other)
         {
-            if (ReferenceEquals(null, other)) return false;
-            if (ReferenceEquals(this, other)) return true;
+            if (ReferenceEquals(null, other))
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, other))
+            {
+                return true;
+            }
+
             return Equals(Start, other.Start) && Equals(End, other.End);
         }
 

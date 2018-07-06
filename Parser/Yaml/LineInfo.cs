@@ -20,8 +20,16 @@ namespace MiKoSolutions.SemanticParsers.ResX.Yaml
 
         public bool Equals(LineInfo other)
         {
-            if (ReferenceEquals(null, other)) return false;
-            if (ReferenceEquals(this, other)) return true;
+            if (ReferenceEquals(null, other))
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, other))
+            {
+                return true;
+            }
+
             return LineNumber == other.LineNumber && LinePosition == other.LinePosition;
         }
 

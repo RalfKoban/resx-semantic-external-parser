@@ -7,12 +7,14 @@ namespace MiKoSolutions.SemanticParsers.ResX
 {
     public static class Program
     {
-        const string Category = "RKN Semantic";
+        private const string Category = "RKN Semantic";
 
         public static async Task<int> Main(string[] args)
         {
             if (args.Length != 2)
+            {
                 return -1;
+            }
 
             var shell = args[0]; // reserved for future usage
             var flagFile = args[1];

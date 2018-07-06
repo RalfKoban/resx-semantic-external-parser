@@ -9,7 +9,7 @@ namespace MiKoSolutions.SemanticParsers.ResX.Yaml
         public override void FillYamlString(StringBuilder builder, int intendation)
         {
             base.FillYamlString(builder, intendation);
-           
+
             var intended = IntendedString.From(intendation);
 
             builder.Append(intended).Append("span: ").AppendLine(Span.ToYamlString());

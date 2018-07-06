@@ -20,8 +20,16 @@ namespace MiKoSolutions.SemanticParsers.ResX.Yaml
 
         public bool Equals(CharacterSpan other)
         {
-            if (ReferenceEquals(null, other)) return false;
-            if (ReferenceEquals(this, other)) return true;
+            if (ReferenceEquals(null, other))
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, other))
+            {
+                return true;
+            }
+
             return Start == other.Start && End == other.End;
         }
 
