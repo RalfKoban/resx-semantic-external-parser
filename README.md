@@ -1,5 +1,5 @@
 # resx-semantic-external-parser
-A semantic external parser for .resx files that can be used together with [GMaster](https://gmaster.io), PlasticSCM or [SemanticMerge](https://semanticmerge.com/).
+A semantic external parser for .resx files that can be used together with [GMaster](https://gmaster.io), [PlasticSCM](https://www.plasticscm.com) or [SemanticMerge](https://semanticmerge.com/).
 
 How to use it with GMaster is documented [here](http://blog.gmaster.io/2018/03/using-external-parsers-with-gmaster.html).
 
