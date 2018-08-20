@@ -61,7 +61,12 @@ namespace MiKoSolutions.SemanticParsers.ResX
                 var root = YamlRoot(lines, allText);
 
                 // adjust footer
-                file.FooterSpan = new CharacterSpan(root.FooterSpan.End + 1, allText.Length - 1);
+                var footerStart = root.FooterSpan.End + 1;
+                var footerEnd = allText.Length - 1;
+                if (footerStart < footerEnd)
+                {
+                    file.FooterSpan = new CharacterSpan(footerStart, footerEnd);
+                }
 
                 YamlInfrastructureCommentAndSchema(root, lines, allText);
 
