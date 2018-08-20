@@ -5,6 +5,7 @@ using System.Linq;
 using MiKoSolutions.SemanticParsers.ResX.Yaml;
 
 using NUnit.Framework;
+
 using YamlDotNet.Core;
 using YamlDotNet.RepresentationModel;
 
@@ -29,9 +30,9 @@ namespace MiKoSolutions.SemanticParsers.ResX
         public void File_matches()
         {
             Assert.That(ObjectUnderTest.LocationSpan.Start, Is.EqualTo(new LineInfo(1, 0)));
-            Assert.That(ObjectUnderTest.LocationSpan.End, Is.EqualTo(new LineInfo(141, 0)));
+            Assert.That(ObjectUnderTest.LocationSpan.End, Is.EqualTo(new LineInfo(144, 0)));
 
-            Assert.That(ObjectUnderTest.FooterSpan, Is.EqualTo(new CharacterSpan(6606, 6607)));
+            Assert.That(ObjectUnderTest.FooterSpan, Is.EqualTo(new CharacterSpan(6695, 6696)));
         }
 
         [Test]
@@ -40,10 +41,10 @@ namespace MiKoSolutions.SemanticParsers.ResX
             var node = ObjectUnderTest.Children.First(_ => _.Name == "root");
 
             Assert.That(node.LocationSpan.Start, Is.EqualTo(new LineInfo(1, 1)));
-            Assert.That(node.LocationSpan.End, Is.EqualTo(new LineInfo(139, 7)));
+            Assert.That(node.LocationSpan.End, Is.EqualTo(new LineInfo(142, 7)));
 
             Assert.That(node.HeaderSpan, Is.EqualTo(new CharacterSpan(0, 47)));
-            Assert.That(node.FooterSpan, Is.EqualTo(new CharacterSpan(6597, 6605)));
+            Assert.That(node.FooterSpan, Is.EqualTo(new CharacterSpan(6686, 6694)));
         }
 
         [Test]
@@ -165,6 +166,17 @@ namespace MiKoSolutions.SemanticParsers.ResX
             Assert.That(node.LocationSpan.End, Is.EqualTo(new LineInfo(138, 11)));
 
             Assert.That(node.Span, Is.EqualTo(new CharacterSpan(6508, 6596)));
+        }
+
+        [Test]
+        public void Data_String5_colon_a_matches()
+        {
+            var node = ObjectUnderTest.Children.SelectMany(_ => _.Children.OfType<TerminalNode>()).First(_ => _.Name == "String5: a");
+
+            Assert.That(node.LocationSpan.Start, Is.EqualTo(new LineInfo(139, 1)));
+            Assert.That(node.LocationSpan.End, Is.EqualTo(new LineInfo(141, 11)));
+
+            Assert.That(node.Span, Is.EqualTo(new CharacterSpan(6597, 6685)));
         }
 
         [Test]

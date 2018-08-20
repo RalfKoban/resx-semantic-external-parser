@@ -17,7 +17,7 @@ namespace MiKoSolutions.SemanticParsers.ResX.Yaml
             var intended = IntendedString.From(intendation);
 
             builder.Append(intended).Append("type: ").AppendLine(Type);
-            builder.Append(intended).Append("name: ").AppendLine(Name);
+            builder.Append(intended).Append("name: \"").Append(Name).AppendLine("\"");
             builder.Append(intended).Append("locationSpan: ").AppendLine(LocationSpan.ToYamlString());
         }
     }

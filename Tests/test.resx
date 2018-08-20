@@ -136,5 +136,8 @@ some multiline string C
   <data name="String4" xml:space="preserve">
     <value>some string</value>
   </data>
+  <data name="String5: a" xml:space="preserve">
+    <value>anything</value>
+  </data>
 </root>
 
