@@ -188,8 +188,10 @@ namespace MiKoSolutions.SemanticParsers.ResX
 
             if (allText.LastIndexOf(ENDTAG, StringComparison.OrdinalIgnoreCase) >= 0)
             {
-                var startLine = GetFirstLineInfo("<!-- ", lines);
-                startLine = new LineInfo(startLine.LineNumber, 1); // we want to start at first
+                var startLineComment = GetFirstLineInfo("<!-- ", lines).LineNumber;
+                var startLineSchema = GetFirstLineInfo("<xsd:schema", lines).LineNumber;
+                var startLineLineNumber = Math.Min(startLineComment, startLineSchema);
+                var startLine = new LineInfo(startLineLineNumber, 1); // we want to start at first
 
                 var endLine = GetLastLineInfo(ENDTAG, lines);
                 endLine = new LineInfo(endLine.LineNumber, endLine.LinePosition + LineEnding.Length); // we want to include line breaks

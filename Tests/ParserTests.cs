@@ -29,154 +29,66 @@ namespace MiKoSolutions.SemanticParsers.ResX
         [Test]
         public void File_matches()
         {
-            Assert.That(ObjectUnderTest.LocationSpan.Start, Is.EqualTo(new LineInfo(1, 0)));
-            Assert.That(ObjectUnderTest.LocationSpan.End, Is.EqualTo(new LineInfo(144, 0)));
+            Assert.Multiple(() =>
+            {
+                Assert.That(ObjectUnderTest.LocationSpan.Start, Is.EqualTo(new LineInfo(1, 0)));
+                Assert.That(ObjectUnderTest.LocationSpan.End, Is.EqualTo(new LineInfo(144, 0)));
 
-            Assert.That(ObjectUnderTest.FooterSpan, Is.EqualTo(new CharacterSpan(6695, 6696)));
+                Assert.That(ObjectUnderTest.FooterSpan, Is.EqualTo(new CharacterSpan(6695, 6696)));
+            });
         }
 
         [Test]
         public void Root_matches()
         {
-            var node = ObjectUnderTest.Children.First(_ => _.Name == "root");
+            Assert.Multiple(() =>
+            {
+                var node = ObjectUnderTest.Children.First(_ => _.Name == "root");
 
-            Assert.That(node.LocationSpan.Start, Is.EqualTo(new LineInfo(1, 1)));
-            Assert.That(node.LocationSpan.End, Is.EqualTo(new LineInfo(142, 7)));
+                Assert.That(node.LocationSpan.Start, Is.EqualTo(new LineInfo(1, 1)));
+                Assert.That(node.LocationSpan.End, Is.EqualTo(new LineInfo(142, 7)));
 
-            Assert.That(node.HeaderSpan, Is.EqualTo(new CharacterSpan(0, 47)));
-            Assert.That(node.FooterSpan, Is.EqualTo(new CharacterSpan(6686, 6694)));
+                Assert.That(node.HeaderSpan, Is.EqualTo(new CharacterSpan(0, 47)));
+                Assert.That(node.FooterSpan, Is.EqualTo(new CharacterSpan(6686, 6694)));
+            });
         }
 
-        [Test]
-        public void Schema_matches()
+        [TestCase("schema",        3, 1, 107,  17,   48, 5266)]
+        [TestCase("resmimetype", 108, 1, 110,  16, 5267, 5356)]
+        [TestCase("version",     111, 1, 113,  16, 5357, 5426)]
+        [TestCase("reader",      114, 1, 116,  16, 5427, 5616)]
+        [TestCase("writer",      117, 1, 119,  16, 5617, 5806)]
+        [TestCase("Image1",      121, 1, 123,  11, 5947, 6175)]
+        [TestCase("String1",     124, 1, 126,  11, 6176, 6264)]
+        [TestCase("String2",     127, 1, 132,  11, 6265, 6418)]
+        [TestCase("String3",     133, 1, 135,  11, 6419, 6507)]
+        [TestCase("String4",     136, 1, 138,  11, 6508, 6596)]
+        [TestCase("String5: a",  139, 1, 141,  11, 6597, 6685)]
+        public void Child_matches(string name, int startLineNr, int startLinePos, int endLineNr, int endLinePos, int startSpan, int stopSpan)
         {
-            var node = ObjectUnderTest.Children.SelectMany(_ => _.Children.OfType<TerminalNode>()).First();
+            Assert.Multiple(() =>
+            {
+                var node = ObjectUnderTest.Children.SelectMany(_ => _.Children.OfType<TerminalNode>()).First(_ => _.Name == name);
 
-            Assert.That(node.LocationSpan.Start, Is.EqualTo(new LineInfo(3, 1)));
-            Assert.That(node.LocationSpan.End, Is.EqualTo(new LineInfo(107, 17)));
+                Assert.That(node.LocationSpan.Start, Is.EqualTo(new LineInfo(startLineNr, startLinePos)));
+                Assert.That(node.LocationSpan.End, Is.EqualTo(new LineInfo(endLineNr, endLinePos)));
 
-            Assert.That(node.Span, Is.EqualTo(new CharacterSpan(48, 5266)));
-        }
-
-        [Test]
-        public void ResHeader_resmimetype_matches()
-        {
-            var node = ObjectUnderTest.Children.SelectMany(_ => _.Children.OfType<TerminalNode>()).First(_ => _.Name == "resmimetype");
-
-            Assert.That(node.LocationSpan.Start, Is.EqualTo(new LineInfo(108, 1)));
-            Assert.That(node.LocationSpan.End, Is.EqualTo(new LineInfo(110, 16)));
-
-            Assert.That(node.Span, Is.EqualTo(new CharacterSpan(5267, 5356)));
-        }
-
-        [Test]
-        public void ResHeader_version_matches()
-        {
-            var node = ObjectUnderTest.Children.SelectMany(_ => _.Children.OfType<TerminalNode>()).First(_ => _.Name == "version");
-
-            Assert.That(node.LocationSpan.Start, Is.EqualTo(new LineInfo(111, 1)));
-            Assert.That(node.LocationSpan.End, Is.EqualTo(new LineInfo(113, 16)));
-
-            Assert.That(node.Span, Is.EqualTo(new CharacterSpan(5357, 5426)));
-        }
-
-        [Test]
-        public void ResHeader_reader_matches()
-        {
-            var node = ObjectUnderTest.Children.SelectMany(_ => _.Children.OfType<TerminalNode>()).First(_ => _.Name == "reader");
-
-            Assert.That(node.LocationSpan.Start, Is.EqualTo(new LineInfo(114, 1)));
-            Assert.That(node.LocationSpan.End, Is.EqualTo(new LineInfo(116, 16)));
-
-            Assert.That(node.Span, Is.EqualTo(new CharacterSpan(5427, 5616)));
-        }
-
-        [Test]
-        public void ResHeader_writer_matches()
-        {
-            var node = ObjectUnderTest.Children.SelectMany(_ => _.Children.OfType<TerminalNode>()).First(_ => _.Name == "writer");
-
-            Assert.That(node.LocationSpan.Start, Is.EqualTo(new LineInfo(117, 1)));
-            Assert.That(node.LocationSpan.End, Is.EqualTo(new LineInfo(119, 16)));
-
-            Assert.That(node.Span, Is.EqualTo(new CharacterSpan(5617, 5806)));
+                Assert.That(node.Span, Is.EqualTo(new CharacterSpan(startSpan, stopSpan)));
+            });
         }
 
         [Test]
         public void Assembly_matches()
         {
-            var node = ObjectUnderTest.Children.SelectMany(_ => _.Children.OfType<TerminalNode>()).First(_ => _.Type == "assembly");
+            Assert.Multiple(() =>
+            {
+                var node = ObjectUnderTest.Children.SelectMany(_ => _.Children.OfType<TerminalNode>()).First(_ => _.Type == "assembly");
 
-            Assert.That(node.LocationSpan.Start, Is.EqualTo(new LineInfo(120, 1)));
-            Assert.That(node.LocationSpan.End, Is.EqualTo(new LineInfo(120, 140)));
+                Assert.That(node.LocationSpan.Start, Is.EqualTo(new LineInfo(120, 1)));
+                Assert.That(node.LocationSpan.End, Is.EqualTo(new LineInfo(120, 140)));
 
-            Assert.That(node.Span, Is.EqualTo(new CharacterSpan(5807, 5946)));
-        }
-
-        [Test]
-        public void Data_Image1_matches()
-        {
-            var node = ObjectUnderTest.Children.SelectMany(_ => _.Children.OfType<TerminalNode>()).First(_ => _.Name == "Image1");
-
-            Assert.That(node.LocationSpan.Start, Is.EqualTo(new LineInfo(121, 1)));
-            Assert.That(node.LocationSpan.End, Is.EqualTo(new LineInfo(123, 11)));
-
-            Assert.That(node.Span, Is.EqualTo(new CharacterSpan(5947, 6175)));
-        }
-
-        [Test]
-        public void Data_String1_matches()
-        {
-            var node = ObjectUnderTest.Children.SelectMany(_ => _.Children.OfType<TerminalNode>()).First(_ => _.Name == "String1");
-
-            Assert.That(node.LocationSpan.Start, Is.EqualTo(new LineInfo(124, 1)));
-            Assert.That(node.LocationSpan.End, Is.EqualTo(new LineInfo(126, 11)));
-
-            Assert.That(node.Span, Is.EqualTo(new CharacterSpan(6176, 6264)));
-        }
-
-        [Test]
-        public void Data_String2_matches()
-        {
-            var node = ObjectUnderTest.Children.SelectMany(_ => _.Children.OfType<TerminalNode>()).First(_ => _.Name == "String2");
-
-            Assert.That(node.LocationSpan.Start, Is.EqualTo(new LineInfo(127, 1)));
-            Assert.That(node.LocationSpan.End, Is.EqualTo(new LineInfo(132, 11)));
-
-            Assert.That(node.Span, Is.EqualTo(new CharacterSpan(6265, 6418)));
-        }
-
-        [Test]
-        public void Data_String3_matches()
-        {
-            var node = ObjectUnderTest.Children.SelectMany(_ => _.Children.OfType<TerminalNode>()).First(_ => _.Name == "String3");
-
-            Assert.That(node.LocationSpan.Start, Is.EqualTo(new LineInfo(133, 1)));
-            Assert.That(node.LocationSpan.End, Is.EqualTo(new LineInfo(135, 11)));
-
-            Assert.That(node.Span, Is.EqualTo(new CharacterSpan(6419, 6507)));
-        }
-
-        [Test]
-        public void Data_String4_matches()
-        {
-            var node = ObjectUnderTest.Children.SelectMany(_ => _.Children.OfType<TerminalNode>()).First(_ => _.Name == "String4");
-
-            Assert.That(node.LocationSpan.Start, Is.EqualTo(new LineInfo(136, 1)));
-            Assert.That(node.LocationSpan.End, Is.EqualTo(new LineInfo(138, 11)));
-
-            Assert.That(node.Span, Is.EqualTo(new CharacterSpan(6508, 6596)));
-        }
-
-        [Test]
-        public void Data_String5_colon_a_matches()
-        {
-            var node = ObjectUnderTest.Children.SelectMany(_ => _.Children.OfType<TerminalNode>()).First(_ => _.Name == "String5: a");
-
-            Assert.That(node.LocationSpan.Start, Is.EqualTo(new LineInfo(139, 1)));
-            Assert.That(node.LocationSpan.End, Is.EqualTo(new LineInfo(141, 11)));
-
-            Assert.That(node.Span, Is.EqualTo(new CharacterSpan(6597, 6685)));
+                Assert.That(node.Span, Is.EqualTo(new CharacterSpan(5807, 5946)));
+            });
         }
 
         [Test]
