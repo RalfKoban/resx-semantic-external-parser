@@ -73,6 +73,7 @@ namespace MiKoSolutions.SemanticParsers.ResX
                 file.Children.Add(root);
                 root.Children.AddRange(Yaml("resheader", document, lines));
                 root.Children.AddRange(Yaml("data", document, lines));
+                root.Children.AddRange(Yaml("metadata", document, lines));
                 root.Children.AddRange(Yaml("assembly", document, lines));
 
                 // sort based on span
