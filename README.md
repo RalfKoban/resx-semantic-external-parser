@@ -26,5 +26,5 @@ Following images give an impression about the different diff results.
 #### Semantic diff
 ![SemanticDiff](Screenshots/ResX_SemanticDiff.png)
 
-#### Visual Semantic diff
+#### Visual diff
 ![SemanticDiff](Screenshots/ResX_VisualDiff.png)
