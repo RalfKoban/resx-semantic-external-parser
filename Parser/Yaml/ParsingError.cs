@@ -12,7 +12,7 @@ namespace MiKoSolutions.SemanticParsers.ResX.Yaml
         {
             var intended = IntendedString.From(intendation);
 
-            builder.Append(intended).Append("location: ").AppendLine(Location.ToYamlString());
+            builder.Append(intended).Append("location: ").AppendLine(Location?.ToYamlString() ?? "<unknown>");
             builder.Append(intended).Append("message: ").AppendLine(ErrorMessage);
         }
     }
