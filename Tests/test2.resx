@@ -61,4 +61,9 @@
   <data name="String1" xml:space="preserve">
     <value>something</value>
   </data>
+  <data name="String2" xml:space="preserve">
+    <value>more text
+with line break</value>
+    <comment>Some comment</comment>
+  </data>
 </root>

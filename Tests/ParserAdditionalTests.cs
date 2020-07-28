@@ -27,7 +27,7 @@ namespace MiKoSolutions.SemanticParsers.ResX
         public void File_matches()
         {
             Assert.That(ObjectUnderTest.LocationSpan.Start, Is.EqualTo(new LineInfo(1, 0)));
-            Assert.That(ObjectUnderTest.LocationSpan.End, Is.EqualTo(new LineInfo(64, 7)));
+            Assert.That(ObjectUnderTest.LocationSpan.End, Is.EqualTo(new LineInfo(69, 7)));
 
             Assert.That(ObjectUnderTest.FooterSpan, Is.EqualTo(new CharacterSpan(0, -1)));
         }
@@ -38,10 +38,10 @@ namespace MiKoSolutions.SemanticParsers.ResX
             var node = ObjectUnderTest.Children.First(_ => _.Name == "root");
 
             Assert.That(node.LocationSpan.Start, Is.EqualTo(new LineInfo(1, 1)));
-            Assert.That(node.LocationSpan.End, Is.EqualTo(new LineInfo(64, 7)));
+            Assert.That(node.LocationSpan.End, Is.EqualTo(new LineInfo(69, 7)));
 
             Assert.That(node.HeaderSpan, Is.EqualTo(new CharacterSpan(0, 47)));
-            Assert.That(node.FooterSpan, Is.EqualTo(new CharacterSpan(2933, 2939)));
+            Assert.That(node.FooterSpan, Is.EqualTo(new CharacterSpan(3074, 3080)));
         }
 
         [TestCase("schema",       3, 1, 48, 17,   48, 2305)]
@@ -50,6 +50,7 @@ namespace MiKoSolutions.SemanticParsers.ResX
         [TestCase("reader",      55, 1, 57, 16, 2466, 2655)]
         [TestCase("writer",      58, 1, 60, 16, 2656, 2845)]
         [TestCase("String1",     61, 1, 63, 11, 2846, 2932)]
+        [TestCase("String2",     64, 1, 68, 11, 2933, 3073)]
         public void Child_matches(string name, int startLineNr, int startLinePos, int endLineNr, int endLinePos, int startSpan, int stopSpan)
         {
             Assert.Multiple(() =>
