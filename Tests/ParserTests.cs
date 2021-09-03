@@ -31,10 +31,10 @@ namespace MiKoSolutions.SemanticParsers.ResX
         {
             Assert.Multiple(() =>
             {
-                Assert.That(ObjectUnderTest.LocationSpan.Start, Is.EqualTo(new LineInfo(1, 0)));
-                Assert.That(ObjectUnderTest.LocationSpan.End, Is.EqualTo(new LineInfo(144, 0)));
+                Assert.That(ObjectUnderTest.LocationSpan.Start, Is.EqualTo(new LineInfo(1, 0)), "wrong location start");
+                Assert.That(ObjectUnderTest.LocationSpan.End, Is.EqualTo(new LineInfo(144, 0)), "wrong location end");
 
-                Assert.That(ObjectUnderTest.FooterSpan, Is.EqualTo(new CharacterSpan(6695, 6696)));
+                Assert.That(ObjectUnderTest.FooterSpan, Is.EqualTo(new CharacterSpan(6695, 6696)), "wrong footer span");
             });
         }
 
@@ -45,11 +45,11 @@ namespace MiKoSolutions.SemanticParsers.ResX
             {
                 var node = ObjectUnderTest.Children.First(_ => _.Name == "root");
 
-                Assert.That(node.LocationSpan.Start, Is.EqualTo(new LineInfo(1, 1)));
-                Assert.That(node.LocationSpan.End, Is.EqualTo(new LineInfo(142, 7)));
+                Assert.That(node.LocationSpan.Start, Is.EqualTo(new LineInfo(1, 1)), "wrong location start");
+                Assert.That(node.LocationSpan.End, Is.EqualTo(new LineInfo(142, 7)), "wrong location end");
 
-                Assert.That(node.HeaderSpan, Is.EqualTo(new CharacterSpan(0, 47)));
-                Assert.That(node.FooterSpan, Is.EqualTo(new CharacterSpan(6686, 6694)));
+                Assert.That(node.HeaderSpan, Is.EqualTo(new CharacterSpan(0, 47)), "wrong header span");
+                Assert.That(node.FooterSpan, Is.EqualTo(new CharacterSpan(6686, 6694)), "wrong footer span");
             });
         }
 
@@ -70,10 +70,10 @@ namespace MiKoSolutions.SemanticParsers.ResX
             {
                 var node = ObjectUnderTest.Children.SelectMany(_ => _.Children.OfType<TerminalNode>()).First(_ => _.Name == name);
 
-                Assert.That(node.LocationSpan.Start, Is.EqualTo(new LineInfo(startLineNr, startLinePos)));
-                Assert.That(node.LocationSpan.End, Is.EqualTo(new LineInfo(endLineNr, endLinePos)));
+                Assert.That(node.LocationSpan.Start, Is.EqualTo(new LineInfo(startLineNr, startLinePos)), "wrong location start for " + name);
+                Assert.That(node.LocationSpan.End, Is.EqualTo(new LineInfo(endLineNr, endLinePos)), "wrong location end for " + name);
 
-                Assert.That(node.Span, Is.EqualTo(new CharacterSpan(startSpan, stopSpan)));
+                Assert.That(node.Span, Is.EqualTo(new CharacterSpan(startSpan, stopSpan)), "wrong span for " + name);
             });
         }
 
